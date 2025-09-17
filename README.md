@@ -1,376 +1,479 @@
-# 🌱 Tesis Angie Backend API
+# 🌱 Tesis Angie Backend - API de Monitoreo de Cacao# 🌱 Tesis Angie Backend - API de Monitoreo de Cacao
 
-Backend RESTful para la aplicación de monitoreo de cacao **Tesis Angie**. Proporciona APIs para gestión de usuarios, datos ambientales, reportes y configuración de dispositivos IoT.
 
-## 🚀 Características
 
-- ✅ Autenticación JWT
-- ✅ Gestión de usuarios y roles (admin/user)
-- ✅ Monitoreo de datos ambientales (temperatura, humedad, luz, pH)
-- ✅ Sistema de alertas automático
-- ✅ Generación de reportes (JSON/CSV)
-- ✅ Configuración de umbrales por dispositivo
-- ✅ Rate limiting y seguridad
-- ✅ Validación de datos robusta
-- ✅ Base de datos MongoDB con Mongoose
+Backend API REST para el sistema de monitoreo de cultivos de cacao con arquitectura modular y base de datos MySQL.Backend API REST para el sistema de monitoreo de cultivos de cacao con arquitectura modular y base de datos MySQL.
 
-## 📋 Requisitos
 
-- Node.js >= 16.0.0
-- MongoDB >= 4.4
-- npm >= 8.0.0
 
-## 🛠️ Instalación y Configuración
+## ✨ Características## 📋 Tabla de Contenidos
 
-### 1. Clonar o descargar el proyecto
 
-```bash
-cd tesis-angie-backend
+
+- 🏗️ **Arquitectura Modular**: Cada funcionalidad organizada en su propio módulo- [Características](#características)
+
+- 🗄️ **MySQL + Sequelize ORM**: Base de datos relacional con ORM robusto- [Arquitectura](#arquitectura)
+
+- 🔐 **Autenticación JWT**: Sistema completo de autenticación y autorización- [Instalación](#instalación)
+
+- 📊 **Monitoreo Ambiental**: Gestión de datos de sensores IoT- [Configuración](#configuración)
+
+- 🚨 **Sistema de Alertas**: Notificaciones automáticas por umbrales- [Estructura del Proyecto](#estructura-del-proyecto)
+
+- 📈 **Reportes y Analytics**: Generación de reportes ambientales- [API Endpoints](#api-endpoints)
+
+- ⚙️ **Configuración Dinámica**: Sistema de configuración flexible- [Base de Datos](#base-de-datos)
+
+- 🛡️ **Seguridad Avanzada**: Rate limiting, CORS, Helmet, validaciones- [Desarrollo](#desarrollo)
+
+- 📱 **Compatible con HeidiSQL**: Optimizado para gestión con HeidiSQL- [Seguridad](#seguridad)
+
+- [Contribución](#contribución)
+
+## 🚀 Instalación
+
+## ✨ Características
+
+### Prerrequisitos
+
+- 🏗️ **Arquitectura Modular**: Cada funcionalidad organizada en su propio módulo
+
+- **Node.js** >= 16.0.0- 🗄️ **MySQL + Sequelize ORM**: Base de datos relacional con ORM robusto
+
+- **MySQL** >= 8.0- 🔐 **Autenticación JWT**: Sistema completo de autenticación y autorización
+
+- **HeidiSQL** (recomendado para gestión de BD)- 📊 **Monitoreo Ambiental**: Gestión de datos de sensores IoT
+
+- 🚨 **Sistema de Alertas**: Notificaciones automáticas por umbrales
+
+### Pasos de Instalación- 📈 **Reportes y Analytics**: Generación de reportes ambientales
+
+- ⚙️ **Configuración Dinámica**: Sistema de configuración flexible
+
+1. **Clonar el repositorio**- 🛡️ **Seguridad Avanzada**: Rate limiting, CORS, Helmet, validaciones
+
+```bash- 📱 **Compatible con HeidiSQL**: Optimizado para gestión con HeidiSQL
+
+git clone https://github.com/usuario/tesis-angie-backend.git
+
+cd tesis-angie-backend## 🏗️ Arquitectura
+
 ```
 
-### 2. Instalar dependencias
+### Estructura Modular
 
-```bash
+2. **Instalar dependencias**
+
+```bashCada ventana/funcionalidad tiene su propia carpeta con:
+
+npm install- **Service**: Lógica de negocio
+
+```- **Controller**: Manejo de requests HTTP
+
+- **Routes**: Definición de endpoints
+
+3. **Configurar variables de entorno**
+
+```bash```
+
+# Editar .env con tus configuraciones MySQLsrc/
+
+```├── modules/
+
+│   ├── auth/          # Autenticación y autorización
+
+4. **Crear base de datos MySQL**│   ├── users/         # Gestión de usuarios
+
+```sql│   ├── environmental/ # Datos ambientales y sensores
+
+CREATE DATABASE cacao_monitoring CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;│   ├── reports/       # Reportes y análisis
+
+```│   └── config/        # Configuración del sistema
+
+├── shared/           # Utilidades compartidas
+
+5. **Iniciar el servidor**│   ├── middleware/   # Middleware global
+
+```bash│   ├── utils/        # Utilidades comunes
+
+# Desarrollo│   └── constants/    # Constantes del sistema
+
+npm run dev├── models/           # Modelos de base de datos
+
+└── config/           # Configuración de BD y app
+
+# Producción```
+
+npm start
+
+```## 🚀 Instalación
+
+
+
+## 📁 Estructura Modular### Prerrequisitos
+
+
+
+```- **Node.js** >= 16.0.0
+
+src/- **MySQL** >= 8.0
+
+├── modules/- **HeidiSQL** (recomendado para gestión de BD)
+
+│   ├── auth/          # Autenticación y autorización- **Git**
+
+│   ├── users/         # Gestión de usuarios
+
+│   ├── environmental/ # Datos ambientales y sensores### Pasos de Instalación
+
+│   ├── reports/       # Reportes y análisis
+
+│   └── config/        # Configuración del sistema1. **Clonar el repositorio**
+
+├── shared/           # Utilidades compartidas```bash
+
+│   ├── middleware/   # Middleware globalgit clone https://github.com/usuario/tesis-angie-backend.git
+
+│   ├── utils/        # Utilidades comunescd tesis-angie-backend
+
+│   └── constants/    # Constantes del sistema```
+
+├── models/           # Modelos de base de datos
+
+└── config/           # Configuración de BD y app2. **Instalar dependencias**
+
+``````bash
+
 npm install
+
+## 🔌 API Endpoints```
+
+
+
+### Autenticación (`/api/auth`)3. **Configurar variables de entorno**
+
+- `POST /login` - Iniciar sesión```bash
+
+- `POST /register` - Registrar usuariocp .env.example .env
+
+- `POST /refresh` - Renovar token# Editar .env con tus configuraciones
+
 ```
 
-### 3. Configurar variables de entorno
+### Usuarios (`/api/users`)
 
-Copia el archivo `.env.example` a `.env` y configura las variables:
+- `GET /profile` - Perfil del usuario4. **Crear base de datos MySQL**
 
-```bash
-cp .env.example .env
+- `PUT /profile` - Actualizar perfil```sql
+
+- `GET /stats` - Estadísticas del usuarioCREATE DATABASE cacao_monitoring CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 ```
 
-Edita el archivo `.env`:
+### Datos Ambientales (`/api/environmental`)
+
+- `POST /data` - Registrar datos de sensores5. **Iniciar el servidor**
+
+- `GET /data` - Obtener datos ambientales```bash
+
+- `GET /devices` - Gestión de dispositivos# Desarrollo
+
+npm run dev
+
+### Reportes (`/api/reports`)
+
+- `GET /environmental` - Reportes ambientales# Producción
+
+- `GET /alerts` - Reportes de alertasnpm start
+
+- `GET /efficiency` - Análisis de eficiencia```
+
+
+
+### Configuración (`/api/config`)## ⚙️ Configuración
+
+- `GET /` - Obtener configuraciones
+
+- `PUT /` - Actualizar configuración### Variables de Entorno (.env)
+
+- `GET /optimal-cacao` - Configuración óptima para cacao
 
 ```env
-# Puerto del servidor
-PORT=3000
 
-# URL de la base de datos MongoDB
-MONGODB_URI=mongodb://localhost:27017/tesis_angie
+## 🗄️ Base de Datos MySQL# Base de datos MySQL
 
-# Clave secreta para JWT (CAMBIAR EN PRODUCCIÓN)
-JWT_SECRET=tu_clave_secreta_muy_segura_aqui_2024
+DB_HOST=localhost
 
-# Configuración de desarrollo
-NODE_ENV=development
+### Modelos PrincipalesDB_PORT=3306
 
-# Configuración de CORS
-CORS_ORIGIN=http://localhost:3000,http://127.0.0.1:3000
+DB_NAME=cacao_monitoring
 
-# Límites de rate limiting
-RATE_LIMIT_WINDOW_MS=900000
-RATE_LIMIT_MAX_REQUESTS=100
+- **Users**: Gestión de usuarios y autenticaciónDB_USER=root
+
+- **EnvironmentalData**: Datos de sensores IoT (temperatura, humedad, pH, luz)DB_PASSWORD=tu_password
+
+- **Alerts**: Sistema de alertas automáticas
+
+- **SystemConfig**: Configuración dinámica del sistema# JWT
+
+JWT_SECRET=tu_clave_secreta_muy_segura
+
+### Configuración Óptima para CacaoJWT_EXPIRES_IN=7d
+
+
+
+- **Temperatura**: 20-30°C# Servidor
+
+- **Humedad**: 60-80%PORT=3000
+
+- **pH del suelo**: 6.0-7.5NODE_ENV=development
+
+- **Humedad del suelo**: 40-70%FRONTEND_URL=http://localhost:3000
+
 ```
 
-### 4. Ejecutar MongoDB
+## 🔒 Seguridad
 
-Asegúrate de que MongoDB esté corriendo:
+### Configuración de HeidiSQL
 
-```bash
-# Windows (si MongoDB está instalado como servicio)
-net start MongoDB
+- **Helmet.js**: Headers de seguridad
 
-# macOS/Linux
-mongod
+- **Rate Limiting**: 100 requests/15min1. Crear nueva conexión:
 
-# O usando Docker
-docker run -d -p 27017:27017 --name mongodb mongo:latest
+- **CORS**: Control de origen cruzado   - **Tipo**: MySQL
+
+- **JWT**: Tokens seguros con bcrypt   - **Hostname**: localhost
+
+- **Validación**: Input validation completa   - **Puerto**: 3306
+
+   - **Usuario**: root
+
+## 📱 HeidiSQL   - **Base de datos**: cacao_monitoring
+
+
+
+La base de datos está optimizada para HeidiSQL:2. El servidor creará automáticamente las tablas al iniciar
+
+- Charset UTF8MB4
+
+- Indexes apropiados## 📁 Estructura del Proyecto
+
+- Relaciones bien definidas
+
 ```
 
-### 5. Iniciar el servidor
+## 🛠️ Scriptstesis-angie-backend/
+
+├── src/
+
+```bash│   ├── modules/
+
+npm run dev    # Desarrollo con auto-reload│   │   ├── auth/
+
+npm start      # Producción│   │   │   ├── authService.js      # Lógica de autenticación
+
+npm install    # Instalar dependencias│   │   │   ├── authController.js   # Controlador de auth
+
+```│   │   │   └── authRoutes.js       # Rutas de auth
+
+│   │   ├── users/
+
+## 📄 Licencia│   │   │   ├── userService.js      # Gestión de usuarios
+
+│   │   │   ├── userController.js   # Controlador de usuarios
+
+ISC License│   │   │   └── userRoutes.js       # Rutas de usuarios
+
+│   │   ├── environmental/
+
+---│   │   │   ├── environmentalService.js
+
+│   │   │   ├── environmentalController.js
+
+**Desarrollado con ❤️ para el monitoreo sostenible de cultivos de cacao**│   │   │   └── environmentalRoutes.js
+│   │   ├── reports/
+│   │   │   ├── reportsService.js
+│   │   │   ├── reportsController.js
+│   │   │   └── reportsRoutes.js
+│   │   └── config/
+│   │       ├── configService.js
+│   │       ├── configController.js
+│   │       └── configRoutes.js
+│   ├── shared/
+│   │   ├── middleware/
+│   │   │   ├── auth.js            # Middleware de autenticación
+│   │   │   ├── errorHandler.js    # Manejo de errores
+│   │   │   └── validation.js      # Validaciones
+│   │   ├── utils/
+│   │   │   ├── responseHelper.js  # Helpers de respuesta
+│   │   │   ├── dateUtils.js       # Utilidades de fecha
+│   │   │   └── pagination.js      # Paginación
+│   │   └── constants/
+│   │       └── index.js           # Constantes del sistema
+│   ├── models/
+│   │   └── index.js              # Modelos Sequelize
+│   ├── config/
+│   │   └── database.js           # Configuración MySQL
+│   └── server.js                 # Punto de entrada
+├── .env                          # Variables de entorno
+├── package.json
+└── README.md
+```
+
+## 🔌 API Endpoints
+
+### Autenticación (`/api/auth`)
+- `POST /login` - Iniciar sesión
+- `POST /register` - Registrar usuario
+- `POST /refresh` - Renovar token
+- `POST /logout` - Cerrar sesión
+
+### Usuarios (`/api/users`)
+- `GET /profile` - Perfil del usuario
+- `PUT /profile` - Actualizar perfil
+- `GET /stats` - Estadísticas del usuario
+- `GET /` - Listar usuarios (admin)
+
+### Datos Ambientales (`/api/environmental`)
+- `POST /data` - Registrar datos de sensores
+- `GET /data` - Obtener datos ambientales
+- `GET /devices` - Gestión de dispositivos
+- `GET /stats` - Estadísticas ambientales
+
+### Reportes (`/api/reports`)
+- `GET /environmental` - Reportes ambientales
+- `GET /alerts` - Reportes de alertas
+- `GET /efficiency` - Análisis de eficiencia
+- `POST /export` - Exportar reportes
+
+### Configuración (`/api/config`)
+- `GET /` - Obtener configuraciones
+- `PUT /` - Actualizar configuración
+- `GET /optimal-cacao` - Configuración óptima para cacao
+- `POST /export` - Exportar configuración
+- `POST /import` - Importar configuración
+
+## 🗄️ Base de Datos
+
+### Modelos Principales
+
+#### Users
+- Gestión de usuarios y autenticación
+- Roles: admin, user
+- Autenticación JWT
+
+#### EnvironmentalData
+- Datos de sensores IoT
+- Temperatura, humedad, pH, luminosidad
+- Geolocalización GPS
+
+#### Alerts
+- Sistema de alertas automáticas
+- Severidad: low, medium, high, critical
+- Estados: activa, resuelta, leída
+
+#### SystemConfig
+- Configuración dinámica del sistema
+- Umbrales configurables
+- Configuración óptima para cacao
+
+### Relaciones
+- User → EnvironmentalData (1:N)
+- User → Alerts (1:N)
+- EnvironmentalData → Alerts (1:N)
+- User → SystemConfig (1:N)
+
+## 🛠️ Desarrollo
+
+### Scripts Disponibles
 
 ```bash
-# Desarrollo (con auto-restart)
+# Desarrollo con auto-reload
 npm run dev
 
 # Producción
 npm start
+
+# Instalar dependencias
+npm install
+
+# Verificar vulnerabilidades
+npm audit
 ```
 
-El servidor se iniciará en `http://localhost:3000`
+### Debugging
 
-## 📚 Documentación de la API
+El servidor incluye logs detallados:
+- Conexiones de base de datos
+- Requests HTTP
+- Errores y excepciones
+- Cambios de configuración
 
-### 🔐 Autenticación
-
-#### POST `/api/auth/register`
-Registrar nuevo usuario.
-
-**Body:**
-```json
-{
-  \"firstName\": \"Juan\",
-  \"lastName\": \"Pérez\",
-  \"cedula\": \"12345678\",
-  \"address\": \"Calle 123, Ciudad\",
-  \"phone\": \"+57300123456\",
-  \"username\": \"juanperez\",
-  \"password\": \"MiPassword123\"
-}
-```
-
-#### POST `/api/auth/login`
-Iniciar sesión.
-
-**Body:**
-```json
-{
-  \"username\": \"juanperez\",
-  \"password\": \"MiPassword123\"
-}
-```
-
-**Respuesta:**
-```json
-{
-  \"message\": \"Inicio de sesión exitoso\",
-  \"token\": \"eyJhbGciOiJIUzI1NiIs...\",
-  \"user\": {
-    \"id\": \"64a1b2c3d4e5f6789...\",
-    \"firstName\": \"Juan\",
-    \"lastName\": \"Pérez\",
-    \"username\": \"juanperez\",
-    \"role\": \"user\"
-  }
-}
-```
-
-#### GET `/api/auth/profile`
-Obtener perfil del usuario autenticado. *(Requiere token)*
-
-### 🌡️ Datos Ambientales
-
-#### GET `/api/environmental/{deviceId}/latest`
-Obtener los últimos datos de un dispositivo.
-
-#### GET `/api/environmental/{deviceId}/historical`
-Obtener datos históricos.
-
-**Query params:**
-- `startDate`: Fecha de inicio (ISO 8601)
-- `endDate`: Fecha de fin (ISO 8601)
-- `limit`: Máximo número de registros (default: 100)
-
-#### POST `/api/environmental/data`
-Crear nuevos datos ambientales (para dispositivos IoT).
-
-**Body:**
-```json
-{
-  \"temperature\": 25.5,
-  \"humidity\": 65.2,
-  \"light\": 800,
-  \"ph\": 6.8,
-  \"deviceId\": \"cacao_sensor_001\"
-}
-```
-
-#### GET `/api/environmental/{deviceId}/summary`
-Obtener resumen estadístico.
-
-**Query params:**
-- `period`: `1h`, `6h`, `24h`, `7d` (default: `24h`)
-
-#### GET `/api/environmental/{deviceId}/alerts`
-Obtener alertas activas. *(Requiere token)*
-
-### 📊 Reportes
-
-#### GET `/api/reports/environmental/{deviceId}`
-Generar reporte de datos ambientales. *(Requiere token)*
-
-**Query params:**
-- `startDate`: Fecha de inicio (obligatorio)
-- `endDate`: Fecha de fin (obligatorio) 
-- `format`: `json` o `csv` (default: `json`)
-
-#### GET `/api/reports/summary/{deviceId}`
-Obtener resumen de reportes disponibles. *(Requiere token)*
-
-### 👥 Gestión de Usuarios *(Solo Admin)*
-
-#### GET `/api/users`
-Listar todos los usuarios.
-
-#### GET `/api/users/{id}`
-Obtener usuario específico.
-
-#### PUT `/api/users/{id}`
-Actualizar usuario.
-
-#### DELETE `/api/users/{id}`
-Eliminar usuario.
-
-### ⚙️ Configuración
-
-#### GET `/api/config/{deviceId}`
-Obtener configuración de dispositivo. *(Requiere token)*
-
-#### PUT `/api/config/{deviceId}`
-Actualizar configuración. *(Solo Admin)*
-
-**Body:**
-```json
-{
-  \"thresholds\": {
-    \"temperature\": { \"min\": 18, \"max\": 32 },
-    \"humidity\": { \"min\": 40, \"max\": 80 },
-    \"light\": { \"min\": 100, \"max\": 1000 },
-    \"ph\": { \"min\": 6.0, \"max\": 7.5 }
-  },
-  \"dataCollection\": {
-    \"interval\": 300,
-    \"enabled\": true
-  },
-  \"alerts\": {
-    \"enabled\": true,
-    \"notificationMethods\": [\"in-app\"]
-  }
-}
-```
-
-## 🔒 Autenticación
-
-Todas las rutas protegidas requieren un token JWT en el header:
-
-```
-Authorization: Bearer {token}
-```
-
-## 🗂️ Estructura del Proyecto
-
-```
-src/
-├── config/           # Configuración de BD
-├── controllers/      # Lógica de negocio
-├── middleware/       # Middlewares (auth, validación)
-├── models/           # Modelos de MongoDB
-├── routes/           # Definición de rutas
-├── utils/            # Utilidades
-└── server.js         # Servidor principal
-```
-
-## 💾 Modelos de Datos
-
-### User
-- `firstName`, `lastName`: Nombres
-- `cedula`: Identificación única
-- `address`, `phone`: Información de contacto
-- `username`, `password`: Credenciales
-- `role`: `user` | `admin`
-- `isActive`: Estado de la cuenta
-
-### EnvironmentalData
-- `temperature`: Temperatura (°C)
-- `humidity`: Humedad (%)
-- `light`: Nivel de luz (lux)
-- `ph`: Nivel de pH (0-14)
-- `deviceId`: Identificador del dispositivo
-- `location`: Coordenadas GPS
-- `timestamps`: Fechas de creación/actualización
-
-### Alert
-- `title`, `description`: Información de la alerta
-- `severity`: `Info` | `Advertencia` | `Atención` | `Crítico`
-- `type`: Tipo de sensor que generó la alerta
-- `deviceId`: Dispositivo asociado
-- `isActive`: Estado de la alerta
-
-### SystemConfig
-- `deviceId`: Identificador del dispositivo
-- `thresholds`: Umbrales min/max para cada sensor
-- `dataCollection`: Configuración de recolección
-- `alerts`: Configuración de notificaciones
-
-## 🧪 Testing
+### Testing
 
 ```bash
-# Instalar dependencias de testing
-npm install --save-dev jest supertest
+# Verificar salud del servidor
+GET /health
 
-# Ejecutar tests
-npm test
+# Información de la API
+GET /api
 ```
 
-## 🚀 Despliegue
+## 🔒 Seguridad
 
-### Variables de Entorno para Producción
+### Medidas Implementadas
 
-```env
-NODE_ENV=production
-PORT=3000
-MONGODB_URI=mongodb://tu-servidor-mongo:27017/tesis_angie
-JWT_SECRET=clave_super_secreta_y_larga_para_produccion
-CORS_ORIGIN=https://tu-app-frontend.com
-```
+- **Helmet.js**: Headers de seguridad
+- **Rate Limiting**: Limitación de requests
+- **CORS**: Control de origen cruzado
+- **JWT**: Tokens seguros
+- **Bcrypt**: Hash de contraseñas
+- **Validación**: Input validation
+- **SQL Injection**: Protección con Sequelize
 
-### Con Docker
+### Configuración de Seguridad
 
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-EXPOSE 3000
-CMD [\"npm\", \"start\"]
-```
+- Rate limiting: 100 requests/15min
+- Auth rate limiting: 5 intentos/15min
+- JWT expiration: 7 días
+- Bcrypt rounds: 12
 
-```bash
-docker build -t tesis-angie-backend .
-docker run -p 3000:3000 --env-file .env tesis-angie-backend
-```
+## 🎯 Configuración Óptima para Cacao
 
-## 📝 Notas de Desarrollo
+El sistema incluye configuraciones predefinidas para cultivos de cacao:
 
-### Crear Usuario Admin
+- **Temperatura**: 20-30°C
+- **Humedad**: 60-80%
+- **pH del suelo**: 6.0-7.5
+- **Humedad del suelo**: 40-70%
+- **Altitud recomendada**: 200-800m
 
-Para crear el primer usuario administrador, registra un usuario normal y luego actualiza su rol en la base de datos:
+## 📱 Compatibilidad con HeidiSQL
 
-```javascript
-// En MongoDB shell
-db.users.updateOne(
-  { username: \"admin\" },
-  { $set: { role: \"admin\" } }
-)
-```
-
-### Datos de Prueba
-
-Para insertar datos de prueba:
-
-```bash
-# Crear datos ambientales de ejemplo
-curl -X POST http://localhost:3000/api/environmental/data \\
-  -H \"Content-Type: application/json\" \\
-  -d '{
-    \"temperature\": 26.5,
-    \"humidity\": 70,
-    \"light\": 750,
-    \"ph\": 6.5,
-    \"deviceId\": \"cacao_test_001\"
-  }'
-```
+La base de datos está optimizada para HeidiSQL:
+- Charset UTF8MB4
+- Indexes apropiados
+- Nombres de tablas claros
+- Relaciones bien definidas
 
 ## 🤝 Contribución
 
 1. Fork el proyecto
-2. Crea tu rama de feature (`git checkout -b feature/nueva-funcionalidad`)
-3. Commit tus cambios (`git commit -am 'Agrega nueva funcionalidad'`)
-4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
 5. Abre un Pull Request
 
 ## 📄 Licencia
 
-Este proyecto está bajo la Licencia ISC.
+Este proyecto está bajo la Licencia ISC. Ver `LICENSE` para más detalles.
 
 ## 📞 Soporte
 
-Para reportar bugs o solicitar nuevas funcionalidades, por favor abre un issue en el repositorio.
+- **Email**: support@cacaomonitoring.com
+- **Documentación**: [docs.cacaomonitoring.com](https://docs.cacaomonitoring.com)
+- **Issues**: [GitHub Issues](https://github.com/usuario/tesis-angie-backend/issues)
 
 ---
 
-**¡Happy Coding! 🌱**
+**Desarrollado con ❤️ para el monitoreo sostenible de cultivos de cacao**
