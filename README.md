@@ -88,149 +88,141 @@ npm install- **Service**: Lógica de negocio
 
 CREATE DATABASE cacao_monitoring CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;│   ├── reports/       # Reportes y análisis
 
-```│   └── config/        # Configuración del sistema
+<!-- README actualizado: MySQL + Sequelize -->
 
-├── shared/           # Utilidades compartidas
+# 🌱 Tesis Angie Backend - API de Monitoreo de Cacao
 
-5. **Iniciar el servidor**│   ├── middleware/   # Middleware global
+Backend RESTful para la aplicación de monitoreo de cacao "Tesis Angie".
+Arquitectura modular basada en Node.js + Express y base de datos relacional MySQL gestionada con Sequelize.
 
-```bash│   ├── utils/        # Utilidades comunes
+---
 
-# Desarrollo│   └── constants/    # Constantes del sistema
+## 📋 Resumen
 
-npm run dev├── models/           # Modelos de base de datos
+- Base: Node.js + Express
+- ORM: Sequelize
+- Base de datos: MySQL (compatible con HeidiSQL)
+- Autenticación: JWT + bcrypt
+- Organización: módulos por funcionalidad (auth, users, environmental, reports, config)
 
-└── config/           # Configuración de BD y app
+---
 
-# Producción```
+## � Requisitos
 
-npm start
+- Node.js >= 16
+- npm >= 8
+- MySQL (local o remoto) >= 5.7 (recomendado >= 8.0)
+- HeidiSQL (opcional, recomendado para gestionar la BD)
 
-```## 🚀 Instalación
+---
 
+## 🚀 Instalación rápida
 
+1. Clona el repositorio
 
-## 📁 Estructura Modular### Prerrequisitos
+```bash
+git clone https://github.com/Jorgeplr/backend-angie.git
+cd backend-angie
+```
 
+2. Instala dependencias
 
-
-```- **Node.js** >= 16.0.0
-
-src/- **MySQL** >= 8.0
-
-├── modules/- **HeidiSQL** (recomendado para gestión de BD)
-
-│   ├── auth/          # Autenticación y autorización- **Git**
-
-│   ├── users/         # Gestión de usuarios
-
-│   ├── environmental/ # Datos ambientales y sensores### Pasos de Instalación
-
-│   ├── reports/       # Reportes y análisis
-
-│   └── config/        # Configuración del sistema1. **Clonar el repositorio**
-
-├── shared/           # Utilidades compartidas```bash
-
-│   ├── middleware/   # Middleware globalgit clone https://github.com/usuario/tesis-angie-backend.git
-
-│   ├── utils/        # Utilidades comunescd tesis-angie-backend
-
-│   └── constants/    # Constantes del sistema```
-
-├── models/           # Modelos de base de datos
-
-└── config/           # Configuración de BD y app2. **Instalar dependencias**
-
-``````bash
-
+```bash
 npm install
-
-## 🔌 API Endpoints```
-
-
-
-### Autenticación (`/api/auth`)3. **Configurar variables de entorno**
-
-- `POST /login` - Iniciar sesión```bash
-
-- `POST /register` - Registrar usuariocp .env.example .env
-
-- `POST /refresh` - Renovar token# Editar .env con tus configuraciones
-
 ```
 
-### Usuarios (`/api/users`)
+3. Crea la base de datos MySQL (ejemplo)
 
-- `GET /profile` - Perfil del usuario4. **Crear base de datos MySQL**
-
-- `PUT /profile` - Actualizar perfil```sql
-
-- `GET /stats` - Estadísticas del usuarioCREATE DATABASE cacao_monitoring CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
+```sql
+CREATE DATABASE cacao_monitoring CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-### Datos Ambientales (`/api/environmental`)
-
-- `POST /data` - Registrar datos de sensores5. **Iniciar el servidor**
-
-- `GET /data` - Obtener datos ambientales```bash
-
-- `GET /devices` - Gestión de dispositivos# Desarrollo
-
-npm run dev
-
-### Reportes (`/api/reports`)
-
-- `GET /environmental` - Reportes ambientales# Producción
-
-- `GET /alerts` - Reportes de alertasnpm start
-
-- `GET /efficiency` - Análisis de eficiencia```
-
-
-
-### Configuración (`/api/config`)## ⚙️ Configuración
-
-- `GET /` - Obtener configuraciones
-
-- `PUT /` - Actualizar configuración### Variables de Entorno (.env)
-
-- `GET /optimal-cacao` - Configuración óptima para cacao
+4. Crea archivo `.env` (puedes copiar `.env.example`) y configura variables:
 
 ```env
-
-## 🗄️ Base de Datos MySQL# Base de datos MySQL
-
-DB_HOST=localhost
-
-### Modelos PrincipalesDB_PORT=3306
-
+DB_HOST=127.0.0.1
+DB_PORT=3306
 DB_NAME=cacao_monitoring
-
-- **Users**: Gestión de usuarios y autenticaciónDB_USER=root
-
-- **EnvironmentalData**: Datos de sensores IoT (temperatura, humedad, pH, luz)DB_PASSWORD=tu_password
-
-- **Alerts**: Sistema de alertas automáticas
-
-- **SystemConfig**: Configuración dinámica del sistema# JWT
-
-JWT_SECRET=tu_clave_secreta_muy_segura
-
-### Configuración Óptima para CacaoJWT_EXPIRES_IN=7d
-
-
-
-- **Temperatura**: 20-30°C# Servidor
-
-- **Humedad**: 60-80%PORT=3000
-
-- **pH del suelo**: 6.0-7.5NODE_ENV=development
-
-- **Humedad del suelo**: 40-70%FRONTEND_URL=http://localhost:3000
-
+DB_USER=root
+DB_PASSWORD=tu_password
+JWT_SECRET=una_clave_segura
+PORT=3000
+NODE_ENV=development
 ```
+
+5. Inicia en modo desarrollo
+
+```bash
+npm run dev
+```
+
+---
+
+## 📦 Características principales
+
+- Autenticación JWT
+- Gestión de usuarios y roles (admin/user)
+- Monitoreo de datos ambientales (temperatura, humedad, luz, pH)
+- Sistema de alertas automático por umbrales
+- Reportes exportables (JSON/CSV)
+- Configuración de umbrales por dispositivo
+- Seguridad: rate limiting, Helmet, CORS, validación de entradas
+
+---
+
+## 🔌 Endpoints (resumen)
+
+- `/api/auth/*` — login / register / refresh
+- `/api/users/*` — gestión de usuarios y perfil
+- `/api/environmental/*` — registro y consulta de datos de sensores
+- `/api/reports/*` — generación y exportación de reportes
+- `/api/config/*` — configuración del sistema
+
+---
+
+## 🗄️ Base de datos
+
+El proyecto usa MySQL + Sequelize. Al iniciar, Sequelize sincroniza los modelos y crea las tablas si no existen.
+
+Modelos principales:
+
+- `Users`
+- `EnvironmentalData`
+- `Alerts`
+- `SystemConfig`
+
+Relaciones principales:
+
+- User → EnvironmentalData (1:N)
+- User → Alerts (1:N)
+- EnvironmentalData → Alerts (1:N)
+- User → SystemConfig (1:N)
+
+---
+
+## 🛠️ Scripts útiles
+
+```bash
+# Desarrollo con nodemon / watch
+npm run dev
+
+# Producción
+npm start
+
+# Instalar dependencias
+npm install
+```
+
+---
+
+## 📝 Notas
+
+- El proyecto está preparado para usarse con herramientas como HeidiSQL para administrar la base de datos MySQL.
+- Si necesitas ayuda para importar el script de creación de tablas o poblar datos de ejemplo, dime y te genero un script SQL listo para importar.
+
+---
+
+**Desarrollado con ❤️ para el monitoreo sostenible de cultivos de cacao**
 
 ## 🔒 Seguridad
 
