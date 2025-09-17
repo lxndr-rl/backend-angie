@@ -60,20 +60,24 @@ class ConfigService {
    */
   async createDefaultConfig() {
     try {
+      // Crear configuración de umbrales para cacao
       const config = await SystemConfig.create({
-        temperatureMin: DEFAULT_CONFIG.TEMPERATURE_MIN,
-        temperatureMax: DEFAULT_CONFIG.TEMPERATURE_MAX,
-        humidityMin: DEFAULT_CONFIG.HUMIDITY_MIN,
-        humidityMax: DEFAULT_CONFIG.HUMIDITY_MAX,
-        lightMin: DEFAULT_CONFIG.LIGHT_MIN,
-        lightMax: DEFAULT_CONFIG.LIGHT_MAX,
-        phMin: DEFAULT_CONFIG.PH_MIN,
-        phMax: DEFAULT_CONFIG.PH_MAX,
-        dataCollectionInterval: DEFAULT_CONFIG.DATA_COLLECTION_INTERVAL,
-        dataCollectionEnabled: true,
-        alertsEnabled: true,
-        createdAt: getCurrentDate(),
-        updatedAt: getCurrentDate()
+        configKey: 'cacao_thresholds',
+        configValue: {
+          temperatureMin: DEFAULT_CONFIG.TEMPERATURE_MIN,
+          temperatureMax: DEFAULT_CONFIG.TEMPERATURE_MAX,
+          humidityMin: DEFAULT_CONFIG.HUMIDITY_MIN,
+          humidityMax: DEFAULT_CONFIG.HUMIDITY_MAX,
+          lightMin: DEFAULT_CONFIG.LIGHT_MIN,
+          lightMax: DEFAULT_CONFIG.LIGHT_MAX,
+          phMin: DEFAULT_CONFIG.PH_MIN,
+          phMax: DEFAULT_CONFIG.PH_MAX,
+          dataCollectionInterval: DEFAULT_CONFIG.DATA_COLLECTION_INTERVAL
+        },
+        description: 'Umbrales ideales para cultivo de cacao',
+        category: 'cacao_optimal',
+        isActive: true,
+        isEditable: true
       });
 
       return config;

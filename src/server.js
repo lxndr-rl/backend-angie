@@ -13,10 +13,10 @@ const { errorHandler, notFound } = require('./shared/middleware/errorHandler');
 
 // Importar rutas modulares
 const authRoutes = require('./modules/auth/authRoutes');
-const userRoutes = require('./modules/users/userRoutes');
-const environmentalRoutes = require('./modules/environmental/environmentalRoutes');
-const reportsRoutes = require('./modules/reports/reportsRoutes');
-const configRoutes = require('./modules/config/configRoutes');
+const userRoutes = require('./modules/users/userRoutesTest');
+// const environmentalRoutes = require('./modules/environmental/environmentalRoutes');
+// const reportsRoutes = require('./modules/reports/reportsRoutes');
+// const configRoutes = require('./modules/config/configRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -121,9 +121,9 @@ app.use('/api/auth/register', authLimiter);
 // ============ RUTAS DE API ============
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/environmental', environmentalRoutes);
-app.use('/api/reports', reportsRoutes);
-app.use('/api/config', configRoutes);
+// app.use('/api/environmental', environmentalRoutes);
+// app.use('/api/reports', reportsRoutes);
+// app.use('/api/config', configRoutes);
 
 // Ruta de información de la API
 app.get('/api', (req, res) => {

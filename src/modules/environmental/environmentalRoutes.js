@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const environmentalController = require('./environmentalController');
-const { authenticateToken, requireAdmin } = require('../auth/authMiddleware');
+const { authenticateToken, requireAdmin } = require('../../shared/middleware/auth');
 const { 
   validateEnvironmentalData, 
   validateDeviceId, 

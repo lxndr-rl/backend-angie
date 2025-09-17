@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const configController = require('./configController');
-const { authenticateToken, requireAdmin } = require('../auth/authMiddleware');
+const { authenticateToken, requireAdmin } = require('../../shared/middleware/auth');
 const { 
   validateSystemConfig,
   handleValidationErrors 

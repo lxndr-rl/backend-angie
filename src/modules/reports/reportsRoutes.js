@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const reportsController = require('./reportsController');
-const { authenticateToken, requireAdmin } = require('../auth/authMiddleware');
+const { authenticateToken, requireAdmin } = require('../../shared/middleware/auth');
 const { 
   validateDateRange,
   handleValidationErrors 
