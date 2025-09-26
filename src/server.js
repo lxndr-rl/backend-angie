@@ -61,7 +61,7 @@ const authLimiter = rateLimit({
 
 // CORS
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: true, // Permitir todos los orígenes en desarrollo
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -223,27 +223,34 @@ async function startServer() {
 }
 
 // Manejar cierre graceful del servidor
+let isShuttingDown = false;
+
 process.on('SIGTERM', async () => {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
   console.log('🔄 Recibida señal SIGTERM, cerrando servidor...');
-  try {
-    await db.close();
-    console.log('✅ Conexión a base de datos cerrada correctamente');
-  } catch (error) {
-    console.error('❌ Error al cerrar conexión a base de datos:', error);
-  }
-  process.exit(0);
+  await gracefulShutdown();
 });
 
+// Para Windows: Solo responder a Ctrl+C del usuario, no a señales HTTP
 process.on('SIGINT', async () => {
-  console.log('🔄 Recibida señal SIGINT, cerrando servidor...');
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+  console.log('🔄 Ctrl+C detectado, cerrando servidor...');
+  await gracefulShutdown();
+});
+
+async function gracefulShutdown() {
   try {
+    console.log('⏳ Cerrando conexiones activas...');
     await db.close();
     console.log('✅ Conexión a base de datos cerrada correctamente');
+    process.exit(0);
   } catch (error) {
     console.error('❌ Error al cerrar conexión a base de datos:', error);
+    process.exit(1);
   }
-  process.exit(0);
-});
+}
 
 // Manejar errores no capturados
 process.on('uncaughtException', (error) => {

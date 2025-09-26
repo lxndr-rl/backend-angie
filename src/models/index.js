@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes, Op } = require('sequelize');
 const sequelize = require('../config/database');
 
 // ============ MODELO USER ============
@@ -27,7 +27,7 @@ const User = sequelize.define('User', {
     }
   },
   password: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(255),
     allowNull: false,
     validate: {
       len: [6, 255],
@@ -67,8 +67,8 @@ const User = sequelize.define('User', {
     allowNull: true
   },
   isActive: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true,
+    type: DataTypes.TINYINT(1),
+    defaultValue: 1,
     allowNull: false
   },
   lastLogin: {
@@ -80,7 +80,7 @@ const User = sequelize.define('User', {
     allowNull: true
   },
   passwordResetToken: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(255),
     allowNull: true
   },
   passwordResetExpires: {
@@ -88,16 +88,27 @@ const User = sequelize.define('User', {
     allowNull: true
   },
   emailVerified: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
+    type: DataTypes.TINYINT(1),
+    defaultValue: 0,
     allowNull: false
   },
   emailVerificationToken: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(255),
     allowNull: true
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+    allowNull: false
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+    allowNull: false
   }
 }, {
   tableName: 'users',
+  timestamps: false, // Manejamos manualmente createdAt y updatedAt
   timestamps: true,
   indexes: [
     {

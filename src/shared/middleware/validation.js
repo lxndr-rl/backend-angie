@@ -35,21 +35,13 @@ const validateUserRegistration = [
     .isLength({ min: 1, max: 50 })
     .withMessage('El apellido debe tener entre 1 y 50 caracteres'),
     
-  body('cedula')
+  body('email')
     .trim()
     .notEmpty()
-    .withMessage('La cédula es requerida')
-    .isLength({ min: 5, max: 15 })
-    .withMessage('La cédula debe tener entre 5 y 15 caracteres')
-    .matches(/^[0-9]+$/)
-    .withMessage('La cédula solo puede contener números'),
-    
-  body('address')
-    .trim()
-    .notEmpty()
-    .withMessage('La dirección es requerida')
-    .isLength({ min: 5, max: 200 })
-    .withMessage('La dirección debe tener entre 5 y 200 caracteres'),
+    .withMessage('El email es requerido')
+    .isEmail()
+    .withMessage('Debe ser un email válido')
+    .normalizeEmail(),
     
   body('phone')
     .trim()

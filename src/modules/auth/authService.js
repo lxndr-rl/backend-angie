@@ -1,14 +1,18 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { User } = require('../../models');
+const { Op } = require('sequelize');
 
 class AuthService {
   async register(userData) {
     try {
+      console.log('🔄 AuthService.register - Datos recibidos:', userData);
+      
       // Verificar si el usuario ya existe
+      console.log('🔍 Verificando existencia de usuario con email:', userData.email, 'y username:', userData.username);
       const existingUser = await User.findOne({
         where: {
-          $or: [
+          [Op.or]: [
             { email: userData.email },
             { username: userData.username }
           ]
@@ -16,19 +20,38 @@ class AuthService {
       });
 
       if (existingUser) {
+        console.log('❌ Usuario ya existe:', existingUser.email);
         const field = existingUser.email === userData.email ? 'email' : 'username';
         throw new Error(`Ya existe un usuario con este ${field}`);
       }
 
+      console.log('✅ Usuario no existe, procediendo con la creación...');
+      
       // Hash de la contraseña
       const saltRounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
       const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
+      console.log('✅ Contraseña hasheada correctamente');
 
       // Crear usuario
-      const user = await User.create({
+      console.log('🔨 Creando usuario con datos:', {
         ...userData,
-        password: hashedPassword
+        password: '[HIDDEN]'
       });
+      const user = await User.create({
+        username: userData.username,
+        email: userData.email,
+        password: hashedPassword,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        phone: userData.phone || null,
+        role: 'user', // Por defecto siempre es 'user'
+        isActive: 1, // Por defecto activo (1 en TINYINT)
+        emailVerified: 0, // Por defecto no verificado (0 en TINYINT)
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+
+      console.log('✅ Usuario creado exitosamente:', user.id);
 
       // Generar tokens
       const { accessToken, refreshToken } = this.generateTokens(user);
@@ -46,6 +69,7 @@ class AuthService {
       };
     } catch (error) {
       console.error('Error en AuthService.register:', error);
+      console.error('Stack trace:', error.stack);
       throw error;
     }
   }
@@ -55,7 +79,7 @@ class AuthService {
       // Buscar usuario
       const user = await User.findOne({
         where: {
-          $or: [
+          [Op.or]: [
             { username: username },
             { email: username }
           ],
@@ -182,7 +206,7 @@ class AuthService {
       // Verificar email único si se está actualizando
       if (updateData.email && updateData.email !== user.email) {
         const existingUser = await User.findOne({
-          where: { email: updateData.email, id: { $ne: userId } }
+          where: { email: updateData.email, id: { [Op.ne]: userId } }
         });
 
         if (existingUser) {

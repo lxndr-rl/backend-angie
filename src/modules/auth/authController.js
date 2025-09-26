@@ -20,7 +20,13 @@ class AuthController {
         phone
       });
 
-      return successResponse(res, 'Usuario registrado exitosamente', result, 201);
+      // Formatear respuesta para que coincida con lo que espera Android
+      const responseData = {
+        token: result.accessToken,
+        user: result.user
+      };
+
+      return successResponse(res, responseData, 'Usuario registrado exitosamente', 201);
     } catch (error) {
       console.error('Error en register:', error);
       return errorResponse(res, error.message, error.statusCode || 500);

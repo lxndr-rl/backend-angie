@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const { User } = require('../../../database/models');
+const { User } = require('../../../models');
+const { Op } = require('sequelize');
 
 class AuthService {
   
@@ -24,50 +25,58 @@ class AuthService {
 
   // Registrar nuevo usuario
   async register(userData) {
-    const { firstName, lastName, cedula, address, phone, username, password } = userData;
+    const { firstName, lastName, email, phone, username, password } = userData;
 
-    // Verificar si el usuario ya existe
-    const existingUser = await User.findOne({
-      where: {
-        [User.sequelize.Sequelize.Op.or]: [
-          { username },
-          { cedula }
-        ]
+    try {
+      // Verificar si el username ya existe
+      const existingUsername = await User.findOne({
+        where: { username }
+      });
+
+      if (existingUsername) {
+        throw new Error('El nombre de usuario ya está en uso');
       }
-    });
 
-    if (existingUser) {
-      throw new Error(
-        existingUser.username === username 
-          ? 'El nombre de usuario ya está en uso' 
-          : 'La cédula ya está registrada'
-      );
+      // Verificar si el email ya existe
+      const existingEmail = await User.findOne({
+        where: { email }
+      });
+
+      if (existingEmail) {
+        throw new Error('El email ya está registrado');
+      }
+
+      // Hash de la contraseña
+      const saltRounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+      // Crear nuevo usuario
+      const user = await User.create({
+        firstName,
+        lastName,
+        email,
+        phone,
+        username,
+        password: hashedPassword
+      });
+
+      // Generar token
+      const token = this.generateToken(user.id);
+
+      return {
+        token,
+        user: {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          username: user.username,
+          role: user.role
+        }
+      };
+    } catch (error) {
+      console.error('Error en registro:', error);
+      throw error;
     }
-
-    // Crear nuevo usuario
-    const user = await User.create({
-      firstName,
-      lastName,
-      cedula,
-      address,
-      phone,
-      username,
-      password
-    });
-
-    // Generar token
-    const token = this.generateToken(user.id);
-
-    return {
-      token,
-      user: {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        username: user.username,
-        role: user.role
-      }
-    };
   }
 
   // Login de usuario
