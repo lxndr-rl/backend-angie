@@ -4,6 +4,37 @@ const { USER_ROLES } = require('../../shared/constants');
 
 class UserController {
   /**
+   * Crea un nuevo usuario (solo admin)
+   */
+  async createUser(req, res) {
+    try {
+      const userData = req.body;
+      
+      // Por defecto, los usuarios se crean activos
+      if (userData.isActive === undefined) {
+        userData.isActive = true;
+      }
+
+      const newUser = await userService.createUser(userData);
+
+      return successResponse(
+        res,
+        newUser,
+        'Usuario creado exitosamente',
+        201
+      );
+    } catch (error) {
+      console.error('Error en UserController.createUser:', error);
+      
+      if (error.message.includes('ya existe') || error.message.includes('duplicate')) {
+        return errorResponse(res, error.message, 409);
+      }
+      
+      return errorResponse(res, error.message, 500);
+    }
+  }
+
+  /**
    * Obtiene todos los usuarios (solo admin)
    */
   async getAllUsers(req, res) {
@@ -138,13 +169,13 @@ class UserController {
   async updateUserStatus(req, res) {
     try {
       const { id } = req.params;
-      const { status } = req.body;
+      const { isActive } = req.body;
 
-      if (!status) {
+      if (isActive === undefined) {
         return errorResponse(res, 'El estado es requerido', 400);
       }
 
-      const updatedUser = await userService.updateUserStatus(id, status);
+      const updatedUser = await userService.updateUserStatus(id, isActive);
 
       return successResponse(
         res,

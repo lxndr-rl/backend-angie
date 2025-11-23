@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const configController = require('./configController');
-const { authenticateToken, requireAdmin } = require('../../shared/middleware/auth');
+const { authenticate, requireAdmin } = require('../../shared/middleware/auth');
 const { 
   validateSystemConfig,
   handleValidationErrors 
@@ -54,7 +54,7 @@ const validateImportData = [
  * @access Private
  */
 router.get('/',
-  authenticateToken,
+  authenticate,
   configController.getSystemConfig
 );
 
@@ -64,7 +64,7 @@ router.get('/',
  * @access Private
  */
 router.get('/defaults',
-  authenticateToken,
+  authenticate,
   configController.getDefaultValues
 );
 
@@ -74,7 +74,7 @@ router.get('/defaults',
  * @access Private
  */
 router.get('/optimal-cacao',
-  authenticateToken,
+  authenticate,
   configController.getOptimalCacaoConfig
 );
 
@@ -84,7 +84,7 @@ router.get('/optimal-cacao',
  * @access Private
  */
 router.get('/validate',
-  authenticateToken,
+  authenticate,
   configController.validateCurrentConfig
 );
 
@@ -94,7 +94,7 @@ router.get('/validate',
  * @access Private
  */
 router.get('/export',
-  authenticateToken,
+  authenticate,
   configController.exportConfig
 );
 
@@ -117,7 +117,7 @@ router.get('/export',
  * @body {boolean} [alertsEnabled] - Habilitar alertas
  */
 router.put('/',
-  authenticateToken,
+  authenticate,
   requireAdmin,
   validateSystemConfig,
   configController.updateSystemConfig
@@ -129,7 +129,7 @@ router.put('/',
  * @access Admin
  */
 router.post('/reset',
-  authenticateToken,
+  authenticate,
   requireAdmin,
   configController.resetToDefaults
 );
@@ -140,7 +140,7 @@ router.post('/reset',
  * @access Admin
  */
 router.post('/apply-optimal-cacao',
-  authenticateToken,
+  authenticate,
   requireAdmin,
   configController.applyOptimalCacaoConfig
 );
@@ -153,7 +153,7 @@ router.post('/apply-optimal-cacao',
  * @body {string} [version] - Versión del archivo de configuración
  */
 router.post('/import',
-  authenticateToken,
+  authenticate,
   requireAdmin,
   validateImportData,
   configController.importConfig
@@ -166,7 +166,7 @@ router.post('/import',
  * @body {boolean} alertsEnabled - Habilitar o deshabilitar alertas
  */
 router.patch('/alerts',
-  authenticateToken,
+  authenticate,
   requireAdmin,
   validateAlertsConfig,
   configController.updateAlertsConfig
@@ -180,7 +180,7 @@ router.patch('/alerts',
  * @body {number} [dataCollectionInterval] - Intervalo en segundos
  */
 router.patch('/data-collection',
-  authenticateToken,
+  authenticate,
   requireAdmin,
   validateDataCollectionConfig,
   configController.updateDataCollectionConfig
@@ -194,7 +194,7 @@ router.patch('/data-collection',
  * @query {number} [limit=50] - Elementos por página
  */
 router.get('/history',
-  authenticateToken,
+  authenticate,
   requireAdmin,
   [
     query('page')
@@ -220,7 +220,7 @@ router.get('/history',
  * @access Private
  */
 router.get('/status',
-  authenticateToken,
+  authenticate,
   async (req, res) => {
     try {
       const config = await require('./configService').getSystemConfig();
@@ -253,15 +253,5 @@ router.get('/status',
     }
   }
 );
-
-// ============ MANEJO DE ERRORES ============
-
-// Middleware para manejar rutas no encontradas en este módulo
-router.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    error: 'Ruta de configuración no encontrada'
-  });
-});
 
 module.exports = router;

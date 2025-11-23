@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const reportsController = require('./reportsController');
-const { authenticateToken, requireAdmin } = require('../../shared/middleware/auth');
+const { authenticate, requireAdmin } = require('../../shared/middleware/auth');
 const { 
   validateDateRange,
   handleValidationErrors 
@@ -97,7 +97,7 @@ const validateCustomReportBody = [
  * @query {number} userId - ID del usuario (solo admin)
  */
 router.get('/environmental',
-  authenticateToken,
+  authenticate,
   validateDateRange,
   validateReportQuery,
   reportsController.generateEnvironmentalReport
@@ -116,7 +116,7 @@ router.get('/environmental',
  * @query {number} userId - ID del usuario (solo admin)
  */
 router.get('/alerts',
-  authenticateToken,
+  authenticate,
   validateDateRange,
   validateReportQuery,
   reportsController.generateAlertsReport
@@ -132,7 +132,7 @@ router.get('/alerts',
  * @query {number} userId - ID del usuario (solo admin)
  */
 router.get('/efficiency',
-  authenticateToken,
+  authenticate,
   validateDateRange,
   validateReportQuery,
   reportsController.generateDeviceEfficiencyReport
@@ -149,7 +149,7 @@ router.get('/efficiency',
  * @query {number} userId - ID del usuario (solo admin)
  */
 router.get('/trends',
-  authenticateToken,
+  authenticate,
   validateDateRange,
   validateReportQuery,
   reportsController.generateTrendsReport
@@ -163,7 +163,7 @@ router.get('/trends',
  * @query {number} userId - ID del usuario (solo admin)
  */
 router.get('/summary',
-  authenticateToken,
+  authenticate,
   validateReportQuery,
   reportsController.getExecutiveSummary
 );
@@ -182,7 +182,7 @@ router.get('/summary',
  * @body {number} userId - ID del usuario (solo admin)
  */
 router.post('/custom',
-  authenticateToken,
+  authenticate,
   validateCustomReportBody,
   reportsController.generateCustomReport
 );
@@ -198,7 +198,7 @@ router.post('/custom',
  * @query {number} userId - ID del usuario (solo admin)
  */
 router.get('/download/:type',
-  authenticateToken,
+  authenticate,
   validateDateRange,
   reportsController.downloadReportCSV
 );
@@ -212,7 +212,7 @@ router.get('/download/:type',
  * @query {string} period - Período del resumen
  */
 router.get('/admin/global-summary',
-  authenticateToken,
+  authenticate,
   requireAdmin,
   validateReportQuery,
   (req, res) => {
@@ -228,7 +228,7 @@ router.get('/admin/global-summary',
  * @access Admin
  */
 router.get('/admin/all-devices-efficiency',
-  authenticateToken,
+  authenticate,
   requireAdmin,
   validateDateRange,
   validateReportQuery,
@@ -245,7 +245,7 @@ router.get('/admin/all-devices-efficiency',
  * @access Admin
  */
 router.get('/admin/system-health',
-  authenticateToken,
+  authenticate,
   requireAdmin,
   validateReportQuery,
   async (req, res) => {
@@ -279,15 +279,5 @@ router.get('/admin/system-health',
     }
   }
 );
-
-// ============ MANEJO DE ERRORES ============
-
-// Middleware para manejar rutas no encontradas en este módulo
-router.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    error: 'Ruta de reportes no encontrada'
-  });
-});
 
 module.exports = router;

@@ -147,10 +147,10 @@ class UserService {
   /**
    * Actualiza el estado de un usuario (solo admin)
    * @param {number} userId - ID del usuario
-   * @param {string} status - Nuevo estado
+   * @param {boolean} isActive - Nuevo estado
    * @returns {Object} Usuario actualizado
    */
-  async updateUserStatus(userId, status) {
+  async updateUserStatus(userId, isActive) {
     try {
       const user = await User.findByPk(userId);
 
@@ -158,7 +158,7 @@ class UserService {
         throw new Error('Usuario no encontrado');
       }
 
-      await user.update({ status });
+      await user.update({ isActive });
 
       const updatedUser = await User.findByPk(userId, {
         attributes: { exclude: ['password'] }
@@ -296,6 +296,158 @@ class UserService {
     } catch (error) {
       console.error('Error en UserService.checkUserExists:', error);
       throw new Error('Error al verificar usuario existente');
+    }
+  }
+
+  /**
+   * Crea un nuevo usuario
+   */
+  async createUser(userData) {
+    try {
+      const bcrypt = require('bcryptjs');
+      
+      // Verificar si el usuario ya existe
+      const existingUser = await User.findOne({
+        where: {
+          [Op.or]: [
+            { username: userData.username },
+            { email: userData.email }
+          ]
+        }
+      });
+
+      if (existingUser) {
+        const error = new Error('Ya existe un usuario con ese username o email');
+        error.statusCode = 400;
+        throw error;
+      }
+
+      // Hashear contraseña
+      const hashedPassword = await bcrypt.hash(userData.password, 12);
+
+      // Crear usuario
+      const user = await User.create({
+        ...userData,
+        password: hashedPassword,
+        isActive: true,
+        emailVerified: false
+      });
+
+      // Retornar sin contraseña
+      const { password, refreshToken, ...userWithoutPassword } = user.toJSON();
+      return userWithoutPassword;
+    } catch (error) {
+      console.error('Error en UserService.createUser:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Actualiza un usuario
+   */
+  async updateUser(userId, updateData) {
+    try {
+      const user = await User.findByPk(userId);
+
+      if (!user) {
+        const error = new Error('Usuario no encontrado');
+        error.statusCode = 404;
+        throw error;
+      }
+
+      // Si se incluye contraseña, hashearla
+      if (updateData.password) {
+        const bcrypt = require('bcryptjs');
+        updateData.password = await bcrypt.hash(updateData.password, 12);
+      }
+
+      // Verificar email único si se está actualizando
+      if (updateData.email && updateData.email !== user.email) {
+        const existingUser = await User.findOne({
+          where: { email: updateData.email, id: { [Op.ne]: userId } }
+        });
+
+        if (existingUser) {
+          const error = new Error('Ya existe un usuario con este email');
+          error.statusCode = 400;
+          throw error;
+        }
+      }
+
+      await user.update(updateData);
+
+      const { password, refreshToken, ...userWithoutPassword } = user.toJSON();
+      return userWithoutPassword;
+    } catch (error) {
+      console.error('Error en UserService.updateUser:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Elimina un usuario
+   */
+  async deleteUser(userId) {
+    try {
+      const user = await User.findByPk(userId);
+
+      if (!user) {
+        const error = new Error('Usuario no encontrado');
+        error.statusCode = 404;
+        throw error;
+      }
+
+      await user.destroy();
+      return true;
+    } catch (error) {
+      console.error('Error en UserService.deleteUser:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Cambia el estado de un usuario
+   */
+  async toggleUserStatus(userId, isActive) {
+    try {
+      const user = await User.findByPk(userId);
+
+      if (!user) {
+        const error = new Error('Usuario no encontrado');
+        error.statusCode = 404;
+        throw error;
+      }
+
+      await user.update({ isActive });
+
+      const { password, refreshToken, ...userWithoutPassword } = user.toJSON();
+      return userWithoutPassword;
+    } catch (error) {
+      console.error('Error en UserService.toggleUserStatus:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Cambia el rol de un usuario
+   */
+  async changeUserRole(userId, role) {
+    try {
+      const user = await User.findByPk(userId);
+
+      if (!user) {
+        const error = new Error('Usuario no encontrado');
+        error.statusCode = 404;
+        throw error;
+      }
+
+      await user.update({ role });
+
+      const { password, refreshToken, ...userWithoutPassword } = user.toJSON();
+      return userWithoutPassword;
+    } catch (error) {
+      console.error('Error en UserService.changeUserRole:', error);
+      throw error;
     }
   }
 }

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const environmentalController = require('./environmentalController');
-const { authenticateToken, requireAdmin } = require('../../shared/middleware/auth');
+const { authenticate, requireAdmin } = require('../../shared/middleware/auth');
 const { 
   validateEnvironmentalData, 
   validateDeviceId, 
@@ -58,7 +58,7 @@ const validateChartQuery = [
  * @body {number} [longitude] - Longitud GPS (opcional)
  */
 router.post('/data',
-  authenticateToken,
+  authenticate,
   validateEnvironmentalData,
   environmentalController.registerData
 );
@@ -77,7 +77,7 @@ router.post('/data',
  * @query {number} userId - ID del usuario (solo admin)
  */
 router.get('/data',
-  authenticateToken,
+  authenticate,
   validateDateRange,
   environmentalController.getEnvironmentalData
 );
@@ -88,7 +88,7 @@ router.get('/data',
  * @access Private
  */
 router.get('/devices/:deviceId/latest',
-  authenticateToken,
+  authenticate,
   validateDeviceId,
   environmentalController.getLatestDataByDevice
 );
@@ -104,7 +104,7 @@ router.get('/devices/:deviceId/latest',
  * @query {number} userId - ID del usuario (solo admin)
  */
 router.get('/stats',
-  authenticateToken,
+  authenticate,
   validateDateRange,
   validateStatsQuery,
   environmentalController.getEnvironmentalStats
@@ -117,7 +117,7 @@ router.get('/stats',
  * @query {number} userId - ID del usuario (solo admin)
  */
 router.get('/devices',
-  authenticateToken,
+  authenticate,
   environmentalController.getDevicesWithLatestData
 );
 
@@ -133,7 +133,7 @@ router.get('/devices',
  * @query {number} userId - ID del usuario (solo admin)
  */
 router.get('/charts',
-  authenticateToken,
+  authenticate,
   validateDateRange,
   validateChartQuery,
   environmentalController.getDataForCharts
@@ -146,7 +146,7 @@ router.get('/charts',
  * @query {number} userId - ID del usuario (solo admin)
  */
 router.get('/sensors/status',
-  authenticateToken,
+  authenticate,
   environmentalController.getCurrentSensorStatus
 );
 
@@ -163,7 +163,7 @@ router.get('/sensors/status',
  * @query {string} endDate - Fecha de fin
  */
 router.get('/admin/all-data',
-  authenticateToken,
+  authenticate,
   requireAdmin,
   validateDateRange,
   (req, res) => {
@@ -179,7 +179,7 @@ router.get('/admin/all-data',
  * @access Admin
  */
 router.get('/admin/global-stats',
-  authenticateToken,
+  authenticate,
   requireAdmin,
   validateStatsQuery,
   (req, res) => {
@@ -188,15 +188,5 @@ router.get('/admin/global-stats',
     environmentalController.getEnvironmentalStats(req, res);
   }
 );
-
-// ============ MANEJO DE ERRORES ============
-
-// Middleware para manejar rutas no encontradas en este módulo
-router.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    error: 'Ruta de datos ambientales no encontrada'
-  });
-});
 
 module.exports = router;

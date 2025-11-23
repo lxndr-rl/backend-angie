@@ -13,10 +13,10 @@ const { errorHandler, notFound } = require('./shared/middleware/errorHandler');
 
 // Importar rutas modulares
 const authRoutes = require('./modules/auth/authRoutes');
-const userRoutes = require('./modules/users/userRoutesTest');
-// const environmentalRoutes = require('./modules/environmental/environmentalRoutes');
-// const reportsRoutes = require('./modules/reports/reportsRoutes');
-// const configRoutes = require('./modules/config/configRoutes');
+const userRoutes = require('./modules/users/userRoutes');
+const environmentalRoutes = require('./modules/environmental/environmentalRoutes');
+const reportsRoutes = require('./modules/reports/reportsRoutes');
+const configRoutes = require('./modules/config/configRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -36,22 +36,26 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-// Rate limiting
+// Rate limiting (desactivado en desarrollo)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // máximo 100 requests por ventana por IP
+  max: process.env.NODE_ENV === 'development' ? 10000 : 100, // Sin límite en desarrollo
   message: {
     error: 'Demasiadas solicitudes desde esta IP, intenta de nuevo más tarde.'
   },
   standardHeaders: true,
   legacyHeaders: false,
 });
-app.use(limiter);
 
-// Rate limiting específico para autenticación
+// Solo aplicar rate limiting en producción
+if (process.env.NODE_ENV !== 'development') {
+  app.use(limiter);
+}
+
+// Rate limiting específico para autenticación (desactivado en desarrollo)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 5, // máximo 5 intentos de login por ventana
+  max: process.env.NODE_ENV === 'development' ? 10000 : 5, // Sin límite en desarrollo
   message: {
     success: false,
     error: 'Demasiados intentos de login, intenta de nuevo en 15 minutos.'
@@ -114,16 +118,18 @@ app.get('/', (req, res) => {
   });
 });
 
-// Aplicar rate limiting específico a rutas de autenticación
-app.use('/api/auth/login', authLimiter);
-app.use('/api/auth/register', authLimiter);
+// Aplicar rate limiting específico a rutas de autenticación (solo en producción)
+if (process.env.NODE_ENV !== 'development') {
+  app.use('/api/auth/login', authLimiter);
+  app.use('/api/auth/register', authLimiter);
+}
 
 // ============ RUTAS DE API ============
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-// app.use('/api/environmental', environmentalRoutes);
-// app.use('/api/reports', reportsRoutes);
-// app.use('/api/config', configRoutes);
+app.use('/api/environmental', environmentalRoutes);
+app.use('/api/reports', reportsRoutes);
+app.use('/api/config', configRoutes);
 
 // Ruta de información de la API
 app.get('/api', (req, res) => {

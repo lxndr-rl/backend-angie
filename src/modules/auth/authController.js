@@ -43,7 +43,7 @@ class AuthController {
       const { username, password } = req.body;
       const result = await authService.login(username, password);
 
-      return successResponse(res, 'Inicio de sesión exitoso', result);
+      return successResponse(res, result, 'Inicio de sesión exitoso');
     } catch (error) {
       console.error('Error en login:', error);
       return errorResponse(res, error.message, error.statusCode || 401);

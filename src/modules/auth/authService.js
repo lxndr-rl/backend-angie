@@ -76,6 +76,8 @@ class AuthService {
 
   async login(username, password) {
     try {
+      console.log('🔐 Intento de login con username:', username);
+      
       // Buscar usuario
       const user = await User.findOne({
         where: {
@@ -87,19 +89,31 @@ class AuthService {
         }
       });
 
+      console.log('👤 Usuario encontrado:', user ? `${user.username} (${user.email})` : 'NO ENCONTRADO');
+
       if (!user) {
+        console.log('❌ Usuario no encontrado o inactivo');
         const error = new Error('Credenciales inválidas');
         error.statusCode = 401;
         throw error;
       }
 
+      console.log('🔑 Verificando contraseña...');
+      console.log('🔑 Password recibido:', password);
+      console.log('🔑 Hash en BD:', user.password);
+      
       // Verificar contraseña
       const isPasswordValid = await bcrypt.compare(password, user.password);
+      console.log('✅ Contraseña válida:', isPasswordValid);
+      
       if (!isPasswordValid) {
+        console.log('❌ Contraseña incorrecta');
         const error = new Error('Credenciales inválidas');
         error.statusCode = 401;
         throw error;
       }
+      
+      console.log('✅ Login exitoso para usuario:', user.username);
 
       // Generar tokens
       const { accessToken, refreshToken } = this.generateTokens(user);
