@@ -1,292 +1,17 @@
-const { DataTypes, Op } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-// ============ MODELO USER ============
-const User = sequelize.define('User', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  },
-  username: {
-    type: DataTypes.STRING(50),
-    allowNull: false,
-    unique: true,
-    validate: {
-      len: [3, 50],
-      notEmpty: true
-    }
-  },
-  email: {
-    type: DataTypes.STRING(100),
-    allowNull: false,
-    unique: true,
-    validate: {
-      isEmail: true,
-      notEmpty: true
-    }
-  },
-  password: {
-    type: DataTypes.STRING(255),
-    allowNull: false,
-    validate: {
-      len: [6, 255],
-      notEmpty: true
-    }
-  },
-  firstName: {
-    type: DataTypes.STRING(50),
-    allowNull: false,
-    validate: {
-      len: [2, 50],
-      notEmpty: true
-    }
-  },
-  lastName: {
-    type: DataTypes.STRING(50),
-    allowNull: false,
-    validate: {
-      len: [2, 50],
-      notEmpty: true
-    }
-  },
-  phone: {
-    type: DataTypes.STRING(20),
-    allowNull: true,
-    validate: {
-      len: [7, 20]
-    }
-  },
-  role: {
-    type: DataTypes.ENUM('admin', 'user'),
-    defaultValue: 'user',
-    allowNull: false
-  },
-  avatar: {
-    type: DataTypes.TEXT,
-    allowNull: true
-  },
-  isActive: {
-    type: DataTypes.TINYINT(1),
-    defaultValue: 1,
-    allowNull: false
-  },
-  lastLogin: {
-    type: DataTypes.DATE,
-    allowNull: true
-  },
-  refreshToken: {
-    type: DataTypes.TEXT,
-    allowNull: true
-  },
-  passwordResetToken: {
-    type: DataTypes.STRING(255),
-    allowNull: true
-  },
-  passwordResetExpires: {
-    type: DataTypes.DATE,
-    allowNull: true
-  },
-  emailVerified: {
-    type: DataTypes.TINYINT(1),
-    defaultValue: 0,
-    allowNull: false
-  },
-  emailVerificationToken: {
-    type: DataTypes.STRING(255),
-    allowNull: true
-  },
-  createdAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-    allowNull: false
-  },
-  updatedAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-    allowNull: false
-  }
-}, {
-  tableName: 'users',
-  timestamps: false, // Manejamos manualmente createdAt y updatedAt
-  timestamps: true,
-  indexes: [
-    {
-      unique: true,
-      fields: ['email']
-    },
-    {
-      unique: true,
-      fields: ['username']
-    },
-    {
-      fields: ['role']
-    },
-    {
-      fields: ['isActive']
-    }
-  ]
-});
+// ============ IMPORTAR MODELOS ============
+const User = require('./User');
+const Device = require('./Device');
+const DHT22Reading = require('./DHT22Reading');
+const MQ135Reading = require('./MQ135Reading');
+const MQ7Reading = require('./MQ7Reading');
+const MQ4Reading = require('./MQ4Reading');
+const MQ136Reading = require('./MQ136Reading');
+const SystemConfig = require('./SystemConfig');
 
-// ============ MODELO ENVIRONMENTAL DATA ============
-const EnvironmentalData = sequelize.define('EnvironmentalData', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  },
-  deviceId: {
-    type: DataTypes.STRING(100),
-    allowNull: false,
-    validate: {
-      notEmpty: true
-    }
-  },
-  temperature: {
-    type: DataTypes.DECIMAL(5, 2),
-    allowNull: false,
-    validate: {
-      min: -50,
-      max: 100
-    }
-  },
-  humidity: {
-    type: DataTypes.DECIMAL(5, 2),
-    allowNull: false,
-    validate: {
-      min: 0,
-      max: 100
-    }
-  },
-  lightIntensity: {
-    type: DataTypes.DECIMAL(8, 2),
-    allowNull: false,
-    validate: {
-      min: 0
-    }
-  },
-  soilPh: {
-    type: DataTypes.DECIMAL(4, 2),
-    allowNull: false,
-    validate: {
-      min: 0,
-      max: 14
-    }
-  },
-  soilMoisture: {
-    type: DataTypes.DECIMAL(5, 2),
-    allowNull: false,
-    validate: {
-      min: 0,
-      max: 100
-    }
-  },
-  rainfall: {
-    type: DataTypes.DECIMAL(6, 2),
-    allowNull: true,
-    defaultValue: 0,
-    validate: {
-      min: 0
-    }
-  },
-  windSpeed: {
-    type: DataTypes.DECIMAL(5, 2),
-    allowNull: true,
-    defaultValue: 0,
-    validate: {
-      min: 0
-    }
-  },
-  atmosphericPressure: {
-    type: DataTypes.DECIMAL(7, 2),
-    allowNull: true,
-    validate: {
-      min: 800,
-      max: 1200
-    }
-  },
-  latitude: {
-    type: DataTypes.DECIMAL(10, 8),
-    allowNull: true,
-    validate: {
-      min: -90,
-      max: 90
-    }
-  },
-  longitude: {
-    type: DataTypes.DECIMAL(11, 8),
-    allowNull: true,
-    validate: {
-      min: -180,
-      max: 180
-    }
-  },
-  altitude: {
-    type: DataTypes.DECIMAL(8, 2),
-    allowNull: true
-  },
-  userId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: User,
-      key: 'id'
-    }
-  },
-  location: {
-    type: DataTypes.STRING(200),
-    allowNull: true
-  },
-  notes: {
-    type: DataTypes.TEXT,
-    allowNull: true
-  },
-  quality: {
-    type: DataTypes.ENUM('excellent', 'good', 'fair', 'poor'),
-    allowNull: true
-  },
-  batteryLevel: {
-    type: DataTypes.DECIMAL(5, 2),
-    allowNull: true,
-    validate: {
-      min: 0,
-      max: 100
-    }
-  },
-  signalStrength: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    validate: {
-      min: -120,
-      max: 0
-    }
-  }
-}, {
-  tableName: 'environmental_data',
-  timestamps: true,
-  indexes: [
-    {
-      fields: ['userId']
-    },
-    {
-      fields: ['deviceId']
-    },
-    {
-      fields: ['createdAt']
-    },
-    {
-      fields: ['temperature']
-    },
-    {
-      fields: ['humidity']
-    },
-    {
-      fields: ['quality']
-    }
-  ]
-});
-
-// ============ MODELO ALERT ============
+// ============ MODELO ALERT (actualizado) ============
 const Alert = sequelize.define('Alert', {
   id: {
     type: DataTypes.INTEGER,
@@ -294,7 +19,7 @@ const Alert = sequelize.define('Alert', {
     autoIncrement: true
   },
   type: {
-    type: DataTypes.ENUM('temperature', 'humidity', 'light', 'ph', 'moisture', 'system', 'maintenance', 'security'),
+    type: DataTypes.ENUM('temperature', 'humidity', 'co', 'ch4', 'h2s', 'air_quality', 'system', 'maintenance', 'security'),
     allowNull: false
   },
   severity: {
@@ -334,7 +59,7 @@ const Alert = sequelize.define('Alert', {
     type: DataTypes.INTEGER,
     allowNull: true,
     references: {
-      model: User,
+      model: 'users',
       key: 'id'
     }
   },
@@ -342,21 +67,26 @@ const Alert = sequelize.define('Alert', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: User,
-      key: 'id'
-    }
-  },
-  environmentalDataId: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: EnvironmentalData,
+      model: 'users',
       key: 'id'
     }
   },
   deviceId: {
-    type: DataTypes.STRING(100),
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'devices',
+      key: 'id'
+    }
+  },
+  sensorType: {
+    type: DataTypes.ENUM('dht22', 'mq135', 'mq7', 'mq4', 'mq136', 'system'),
     allowNull: true
+  },
+  readingId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    comment: 'ID de la lectura que generó la alerta'
   },
   triggerValue: {
     type: DataTypes.DECIMAL(10, 4),
@@ -387,6 +117,9 @@ const Alert = sequelize.define('Alert', {
       fields: ['userId']
     },
     {
+      fields: ['deviceId']
+    },
+    {
       fields: ['type']
     },
     {
@@ -402,99 +135,67 @@ const Alert = sequelize.define('Alert', {
       fields: ['createdAt']
     },
     {
-      fields: ['environmentalDataId']
-    }
-  ]
-});
-
-// ============ MODELO SYSTEM CONFIG ============
-const SystemConfig = sequelize.define('SystemConfig', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  },
-  configKey: {
-    type: DataTypes.STRING(100),
-    allowNull: false,
-    unique: true,
-    validate: {
-      notEmpty: true
-    }
-  },
-  configValue: {
-    type: DataTypes.JSON,
-    allowNull: false
-  },
-  description: {
-    type: DataTypes.TEXT,
-    allowNull: true
-  },
-  category: {
-    type: DataTypes.ENUM('thresholds', 'alerts', 'system', 'sensors', 'notification', 'cacao_optimal', 'data_collection'),
-    allowNull: false,
-    defaultValue: 'system'
-  },
-  isActive: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true,
-    allowNull: false
-  },
-  isEditable: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true,
-    allowNull: false
-  },
-  lastModifiedBy: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'id'
-    }
-  },
-  version: {
-    type: DataTypes.INTEGER,
-    defaultValue: 1,
-    allowNull: false
-  },
-  validationSchema: {
-    type: DataTypes.JSON,
-    allowNull: true
-  }
-}, {
-  tableName: 'system_config',
-  timestamps: true,
-  indexes: [
-    {
-      unique: true,
-      fields: ['configKey']
-    },
-    {
-      fields: ['category']
-    },
-    {
-      fields: ['isActive']
-    },
-    {
-      fields: ['lastModifiedBy']
+      fields: ['sensorType']
     }
   ]
 });
 
 // ============ RELACIONES ============
 
-// User -> EnvironmentalData (One to Many)
-User.hasMany(EnvironmentalData, {
-  foreignKey: 'userId',
-  as: 'environmentalData',
+// Device -> Readings (One to Many)
+Device.hasMany(DHT22Reading, {
+  foreignKey: 'deviceId',
+  as: 'dht22Readings',
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE'
 });
+DHT22Reading.belongsTo(Device, {
+  foreignKey: 'deviceId',
+  as: 'device'
+});
 
-EnvironmentalData.belongsTo(User, {
-  foreignKey: 'userId',
-  as: 'user'
+Device.hasMany(MQ135Reading, {
+  foreignKey: 'deviceId',
+  as: 'mq135Readings',
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
+});
+MQ135Reading.belongsTo(Device, {
+  foreignKey: 'deviceId',
+  as: 'device'
+});
+
+Device.hasMany(MQ7Reading, {
+  foreignKey: 'deviceId',
+  as: 'mq7Readings',
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
+});
+MQ7Reading.belongsTo(Device, {
+  foreignKey: 'deviceId',
+  as: 'device'
+});
+
+Device.hasMany(MQ4Reading, {
+  foreignKey: 'deviceId',
+  as: 'mq4Readings',
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
+});
+MQ4Reading.belongsTo(Device, {
+  foreignKey: 'deviceId',
+  as: 'device'
+});
+
+Device.hasMany(MQ136Reading, {
+  foreignKey: 'deviceId',
+  as: 'mq136Readings',
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
+});
+MQ136Reading.belongsTo(Device, {
+  foreignKey: 'deviceId',
+  as: 'device'
 });
 
 // User -> Alert (One to Many)
@@ -504,7 +205,6 @@ User.hasMany(Alert, {
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE'
 });
-
 Alert.belongsTo(User, {
   foreignKey: 'userId',
   as: 'user'
@@ -517,23 +217,21 @@ User.hasMany(Alert, {
   onDelete: 'SET NULL',
   onUpdate: 'CASCADE'
 });
-
 Alert.belongsTo(User, {
   foreignKey: 'resolvedBy',
   as: 'resolver'
 });
 
-// EnvironmentalData -> Alert (One to Many)
-EnvironmentalData.hasMany(Alert, {
-  foreignKey: 'environmentalDataId',
+// Device -> Alert (One to Many)
+Device.hasMany(Alert, {
+  foreignKey: 'deviceId',
   as: 'alerts',
-  onDelete: 'SET NULL',
+  onDelete: 'CASCADE',
   onUpdate: 'CASCADE'
 });
-
-Alert.belongsTo(EnvironmentalData, {
-  foreignKey: 'environmentalDataId',
-  as: 'environmentalData'
+Alert.belongsTo(Device, {
+  foreignKey: 'deviceId',
+  as: 'device'
 });
 
 // User -> SystemConfig (Last Modified By) (One to Many)
@@ -543,25 +241,12 @@ User.hasMany(SystemConfig, {
   onDelete: 'SET NULL',
   onUpdate: 'CASCADE'
 });
-
 SystemConfig.belongsTo(User, {
   foreignKey: 'lastModifiedBy',
   as: 'modifier'
 });
 
 // ============ HOOKS ============
-
-// Hook para User - actualizar lastLogin
-User.addHook('afterUpdate', (user, options) => {
-  if (user.changed('lastLogin')) {
-    console.log(`Usuario ${user.username} actualizó su último login`);
-  }
-});
-
-// Hook para EnvironmentalData - log de nuevos datos
-EnvironmentalData.addHook('afterCreate', (data, options) => {
-  console.log(`Nuevos datos ambientales registrados para dispositivo ${data.deviceId}`);
-});
 
 // Hook para Alert - log de alertas críticas
 Alert.addHook('afterCreate', (alert, options) => {
@@ -577,33 +262,6 @@ SystemConfig.addHook('afterUpdate', (config, options) => {
 
 // ============ MÉTODOS DE INSTANCIA ============
 
-// Método para User - obtener nombre completo
-User.prototype.getFullName = function() {
-  return `${this.firstName} ${this.lastName}`;
-};
-
-// Método para User - verificar si es admin
-User.prototype.isAdmin = function() {
-  return this.role === 'admin';
-};
-
-// Método para EnvironmentalData - verificar si está dentro de rangos óptimos
-EnvironmentalData.prototype.isWithinOptimalRange = function() {
-  const optimal = {
-    temperature: { min: 20, max: 30 },
-    humidity: { min: 60, max: 80 },
-    soilPh: { min: 6.0, max: 7.5 },
-    soilMoisture: { min: 40, max: 70 }
-  };
-  
-  return (
-    this.temperature >= optimal.temperature.min && this.temperature <= optimal.temperature.max &&
-    this.humidity >= optimal.humidity.min && this.humidity <= optimal.humidity.max &&
-    this.soilPh >= optimal.soilPh.min && this.soilPh <= optimal.soilPh.max &&
-    this.soilMoisture >= optimal.soilMoisture.min && this.soilMoisture <= optimal.soilMoisture.max
-  );
-};
-
 // Método para Alert - marcar como resuelto
 Alert.prototype.resolve = async function(resolvedBy) {
   this.isResolved = true;
@@ -613,13 +271,6 @@ Alert.prototype.resolve = async function(resolvedBy) {
 };
 
 // ============ MÉTODOS DE CLASE ============
-
-// Método para User - buscar activos
-User.findActive = function() {
-  return this.findAll({
-    where: { isActive: true }
-  });
-};
 
 // Método para Alert - buscar no resueltas
 Alert.findUnresolved = function() {
@@ -643,7 +294,12 @@ SystemConfig.findByCategory = function(category) {
 module.exports = {
   sequelize,
   User,
-  EnvironmentalData,
+  Device,
+  DHT22Reading,
+  MQ135Reading,
+  MQ7Reading,
+  MQ4Reading,
+  MQ136Reading,
   Alert,
   SystemConfig
 };

@@ -1,87 +1,142 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
 
-const userSchema = new mongoose.Schema({
-    firstName: {
-        type: String,
-        required: [true, 'El nombre es requerido'],
-        trim: true,
-        maxLength: [50, 'El nombre no puede exceder 50 caracteres']
-    },
-    lastName: {
-        type: String,
-        required: [true, 'El apellido es requerido'],
-        trim: true,
-        maxLength: [50, 'El apellido no puede exceder 50 caracteres']
-    },
-    cedula: {
-        type: String,
-        required: [true, 'La cédula es requerida'],
-        unique: true,
-        trim: true,
-        maxLength: [15, 'La cédula no puede exceder 15 caracteres']
-    },
-    address: {
-        type: String,
-        required: [true, 'La dirección es requerida'],
-        trim: true,
-        maxLength: [200, 'La dirección no puede exceder 200 caracteres']
-    },
-    phone: {
-        type: String,
-        required: [true, 'El teléfono es requerido'],
-        trim: true,
-        maxLength: [15, 'El teléfono no puede exceder 15 caracteres']
-    },
-    username: {
-        type: String,
-        required: [true, 'El usuario es requerido'],
-        unique: true,
-        trim: true,
-        minLength: [3, 'El usuario debe tener al menos 3 caracteres'],
-        maxLength: [30, 'El usuario no puede exceder 30 caracteres']
-    },
-    password: {
-        type: String,
-        required: [true, 'La contraseña es requerida'],
-        minLength: [6, 'La contraseña debe tener al menos 6 caracteres']
-    },
-    role: {
-        type: String,
-        enum: ['user', 'admin'],
-        default: 'user'
-    },
-    isActive: {
-        type: Boolean,
-        default: true
+const User = sequelize.define('User', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  username: {
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    unique: true,
+    validate: {
+      len: [3, 50],
+      notEmpty: true
     }
+  },
+  email: {
+    type: DataTypes.STRING(100),
+    allowNull: false,
+    unique: true,
+    validate: {
+      isEmail: true,
+      notEmpty: true
+    }
+  },
+  password: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+    validate: {
+      len: [6, 255],
+      notEmpty: true
+    }
+  },
+  firstName: {
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    validate: {
+      len: [2, 50],
+      notEmpty: true
+    }
+  },
+  lastName: {
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    validate: {
+      len: [2, 50],
+      notEmpty: true
+    }
+  },
+  phone: {
+    type: DataTypes.STRING(20),
+    allowNull: true,
+    validate: {
+      len: [7, 20]
+    }
+  },
+  role: {
+    type: DataTypes.ENUM('admin', 'user'),
+    defaultValue: 'user',
+    allowNull: false
+  },
+  avatar: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  isActive: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+    allowNull: false
+  },
+  lastLogin: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  refreshToken: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  passwordResetToken: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
+  passwordResetExpires: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  emailVerified: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+    allowNull: false
+  },
+  emailVerificationToken: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  }
 }, {
-    timestamps: true
-});
-
-// Middleware para encriptar la contraseña antes de guardar
-userSchema.pre('save', async function(next) {
-    if (!this.isModified('password')) return next();
-    
-    try {
-        const salt = await bcrypt.genSalt(12);
-        this.password = await bcrypt.hash(this.password, salt);
-        next();
-    } catch (error) {
-        next(error);
+  tableName: 'users',
+  timestamps: true,
+  indexes: [
+    {
+      unique: true,
+      fields: ['email']
+    },
+    {
+      unique: true,
+      fields: ['username']
+    },
+    {
+      fields: ['role']
+    },
+    {
+      fields: ['isActive']
     }
+  ]
 });
 
-// Método para comparar contraseñas
-userSchema.methods.comparePassword = async function(candidatePassword) {
-    return await bcrypt.compare(candidatePassword, this.password);
+// ============ HOOKS ============
+User.addHook('afterUpdate', (user, options) => {
+  if (user.changed('lastLogin')) {
+    console.log(`Usuario ${user.username} actualizó su último login`);
+  }
+});
+
+// ============ MÉTODOS DE INSTANCIA ============
+User.prototype.getFullName = function() {
+  return `${this.firstName} ${this.lastName}`;
 };
 
-// Método para obtener datos públicos del usuario (sin contraseña)
-userSchema.methods.toJSON = function() {
-    const userObject = this.toObject();
-    delete userObject.password;
-    return userObject;
+User.prototype.isAdmin = function() {
+  return this.role === 'admin';
 };
 
-module.exports = mongoose.model('User', userSchema);
+// ============ MÉTODOS DE CLASE ============
+User.findActive = function() {
+  return this.findAll({
+    where: { isActive: true }
+  });
+};
+
+module.exports = User;
