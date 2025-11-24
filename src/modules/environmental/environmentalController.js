@@ -4,7 +4,74 @@ const { USER_ROLES } = require('../../shared/constants');
 
 class EnvironmentalController {
   /**
-   * Registra nuevos datos ambientales
+   * Registra datos de sensores IoT (ESP32) - Endpoint público
+   */
+  async registerSensorData(req, res) {
+    try {
+      const {
+        deviceId,
+        temperature,
+        humidity,
+        mq135_ppm,
+        mq135_voltage,
+        mq7_ppm,
+        mq7_voltage,
+        mq4_ppm,
+        mq4_voltage,
+        mq136_ppm,
+        mq136_voltage,
+        latitude,
+        longitude
+      } = req.body;
+
+      // Validaciones básicas
+      if (!deviceId) {
+        return errorResponse(res, 'El deviceId es requerido', 400);
+      }
+
+      if (temperature === undefined || humidity === undefined) {
+        return errorResponse(res, 'Temperatura y humedad son requeridos', 400);
+      }
+
+      console.log(`📡 Datos recibidos del dispositivo ${deviceId}:`, {
+        temperature,
+        humidity,
+        mq135_ppm,
+        mq7_ppm,
+        mq4_ppm,
+        mq136_ppm
+      });
+
+      // Registrar datos de sensores
+      const result = await environmentalService.registerSensorData({
+        deviceId,
+        temperature,
+        humidity,
+        mq135_ppm,
+        mq135_voltage,
+        mq7_ppm,
+        mq7_voltage,
+        mq4_ppm,
+        mq4_voltage,
+        mq136_ppm,
+        mq136_voltage,
+        latitude,
+        longitude
+      });
+
+      return createdResponse(
+        res,
+        result,
+        'Datos de sensores registrados exitosamente'
+      );
+    } catch (error) {
+      console.error('Error en EnvironmentalController.registerSensorData:', error);
+      return errorResponse(res, error.message || 'Error al registrar datos de sensores', 500);
+    }
+  }
+
+  /**
+   * Registra nuevos datos ambientales (requiere autenticación)
    */
   async registerData(req, res) {
     try {

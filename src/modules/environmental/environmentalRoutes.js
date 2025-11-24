@@ -43,6 +43,36 @@ const validateChartQuery = [
   handleValidationErrors
 ];
 
+// Validación para datos de sensores IoT (ESP32)
+const validateSensorData = [
+  validateEnvironmentalData,
+  handleValidationErrors
+];
+
+// ============ RUTAS PÚBLICAS (para dispositivos IoT) ============
+
+/**
+ * @route POST /api/environmental/sensor/data
+ * @desc Endpoint público para que dispositivos IoT (ESP32) envíen datos de sensores
+ * @access Public (sin autenticación)
+ * @body {string} deviceId - ID único del dispositivo ESP32
+ * @body {number} temperature - Temperatura del DHT22 en °C
+ * @body {number} humidity - Humedad del DHT22 en %
+ * @body {number} mq135_ppm - Lectura del sensor MQ-135 (CO2/calidad aire) en PPM
+ * @body {number} mq135_voltage - Voltaje del MQ-135
+ * @body {number} mq7_ppm - Lectura del sensor MQ-7 (CO) en PPM
+ * @body {number} mq7_voltage - Voltaje del MQ-7
+ * @body {number} mq4_ppm - Lectura del sensor MQ-4 (Metano) en PPM
+ * @body {number} mq4_voltage - Voltaje del MQ-4
+ * @body {number} [mq136_ppm] - Lectura del sensor MQ-136 (H2S) en PPM (opcional)
+ * @body {number} [mq136_voltage] - Voltaje del MQ-136 (opcional)
+ * @body {number} [latitude] - Latitud GPS (opcional)
+ * @body {number} [longitude] - Longitud GPS (opcional)
+ */
+router.post('/sensor/data',
+  environmentalController.registerSensorData
+);
+
 // ============ RUTAS PROTEGIDAS (requieren autenticación) ============
 
 /**
