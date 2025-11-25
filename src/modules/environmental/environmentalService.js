@@ -992,6 +992,156 @@ class EnvironmentalService {
       return {};
     }
   }
+
+  /**
+   * Obtiene historial de lecturas DHT22 (Temperatura y Humedad)
+   */
+  async getDHT22History(deviceId, hours = 24) {
+    try {
+      const { Device, DHT22Reading } = require('../../models');
+      
+      const device = await Device.findOne({ where: { deviceId } });
+      if (!device) {
+        throw new Error('Dispositivo no encontrado');
+      }
+
+      const hoursAgo = new Date(Date.now() - hours * 60 * 60 * 1000);
+
+      const readings = await DHT22Reading.findAll({
+        where: {
+          deviceId: device.id,
+          createdAt: { [Op.gte]: hoursAgo }
+        },
+        order: [['createdAt', 'ASC']],
+        limit: 1000
+      });
+
+      return readings;
+    } catch (error) {
+      console.error('Error obteniendo historial DHT22:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtiene historial de lecturas MQ135 (Calidad del Aire)
+   */
+  async getMQ135History(deviceId, hours = 24) {
+    try {
+      const { Device, MQ135Reading } = require('../../models');
+      
+      const device = await Device.findOne({ where: { deviceId } });
+      if (!device) {
+        throw new Error('Dispositivo no encontrado');
+      }
+
+      const hoursAgo = new Date(Date.now() - hours * 60 * 60 * 1000);
+
+      const readings = await MQ135Reading.findAll({
+        where: {
+          deviceId: device.id,
+          createdAt: { [Op.gte]: hoursAgo }
+        },
+        order: [['createdAt', 'ASC']],
+        limit: 1000
+      });
+
+      return readings;
+    } catch (error) {
+      console.error('Error obteniendo historial MQ135:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtiene historial de lecturas MQ7 (Monóxido de Carbono)
+   */
+  async getMQ7History(deviceId, hours = 24) {
+    try {
+      const { Device, MQ7Reading } = require('../../models');
+      
+      const device = await Device.findOne({ where: { deviceId } });
+      if (!device) {
+        throw new Error('Dispositivo no encontrado');
+      }
+
+      const hoursAgo = new Date(Date.now() - hours * 60 * 60 * 1000);
+
+      const readings = await MQ7Reading.findAll({
+        where: {
+          deviceId: device.id,
+          createdAt: { [Op.gte]: hoursAgo }
+        },
+        order: [['createdAt', 'ASC']],
+        limit: 1000
+      });
+
+      return readings;
+    } catch (error) {
+      console.error('Error obteniendo historial MQ7:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtiene historial de lecturas MQ4 (Metano)
+   */
+  async getMQ4History(deviceId, hours = 24) {
+    try {
+      const { Device, MQ4Reading } = require('../../models');
+      
+      const device = await Device.findOne({ where: { deviceId } });
+      if (!device) {
+        throw new Error('Dispositivo no encontrado');
+      }
+
+      const hoursAgo = new Date(Date.now() - hours * 60 * 60 * 1000);
+
+      const readings = await MQ4Reading.findAll({
+        where: {
+          deviceId: device.id,
+          createdAt: { [Op.gte]: hoursAgo }
+        },
+        order: [['createdAt', 'ASC']],
+        limit: 1000
+      });
+
+      return readings;
+    } catch (error) {
+      console.error('Error obteniendo historial MQ4:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtiene historial de lecturas MQ136 (Sulfuro de Hidrógeno)
+   */
+  async getMQ136History(deviceId, hours = 24) {
+    try {
+      const { Device, MQ136Reading } = require('../../models');
+      
+      const device = await Device.findOne({ where: { deviceId } });
+      if (!device) {
+        throw new Error('Dispositivo no encontrado');
+      }
+
+      const hoursAgo = new Date(Date.now() - hours * 60 * 60 * 1000);
+
+      const readings = await MQ136Reading.findAll({
+        where: {
+          deviceId: device.id,
+          createdAt: { [Op.gte]: hoursAgo }
+        },
+        order: [['createdAt', 'ASC']],
+        limit: 1000
+      });
+
+      return readings;
+    } catch (error) {
+      console.error('Error obteniendo historial MQ136:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = new EnvironmentalService();

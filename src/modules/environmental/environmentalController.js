@@ -341,6 +341,111 @@ class EnvironmentalController {
       return errorResponse(res, error.message, 500);
     }
   }
+
+  /**
+   * Obtiene historial de lecturas DHT22 (Temperatura y Humedad)
+   */
+  async getDHT22History(req, res) {
+    try {
+      const { deviceId } = req.params;
+      const hours = parseInt(req.query.hours) || 24;
+
+      const readings = await environmentalService.getDHT22History(deviceId, hours);
+
+      return successResponse(
+        res,
+        readings,
+        'Historial DHT22 obtenido exitosamente'
+      );
+    } catch (error) {
+      console.error('Error en EnvironmentalController.getDHT22History:', error);
+      return errorResponse(res, error.message, 500);
+    }
+  }
+
+  /**
+   * Obtiene historial de lecturas MQ135 (Calidad del Aire)
+   */
+  async getMQ135History(req, res) {
+    try {
+      const { deviceId } = req.params;
+      const hours = parseInt(req.query.hours) || 24;
+
+      const readings = await environmentalService.getMQ135History(deviceId, hours);
+
+      return successResponse(
+        res,
+        readings,
+        'Historial MQ135 obtenido exitosamente'
+      );
+    } catch (error) {
+      console.error('Error en EnvironmentalController.getMQ135History:', error);
+      return errorResponse(res, error.message, 500);
+    }
+  }
+
+  /**
+   * Obtiene historial de lecturas MQ7 (Monóxido de Carbono)
+   */
+  async getMQ7History(req, res) {
+    try {
+      const { deviceId } = req.params;
+      const hours = parseInt(req.query.hours) || 24;
+
+      const readings = await environmentalService.getMQ7History(deviceId, hours);
+
+      return successResponse(
+        res,
+        readings,
+        'Historial MQ7 obtenido exitosamente'
+      );
+    } catch (error) {
+      console.error('Error en EnvironmentalController.getMQ7History:', error);
+      return errorResponse(res, error.message, 500);
+    }
+  }
+
+  /**
+   * Obtiene historial de lecturas MQ4 (Metano)
+   */
+  async getMQ4History(req, res) {
+    try {
+      const { deviceId } = req.params;
+      const hours = parseInt(req.query.hours) || 24;
+
+      const readings = await environmentalService.getMQ4History(deviceId, hours);
+
+      return successResponse(
+        res,
+        readings,
+        'Historial MQ4 obtenido exitosamente'
+      );
+    } catch (error) {
+      console.error('Error en EnvironmentalController.getMQ4History:', error);
+      return errorResponse(res, error.message, 500);
+    }
+  }
+
+  /**
+   * Obtiene historial de lecturas MQ136 (Sulfuro de Hidrógeno)
+   */
+  async getMQ136History(req, res) {
+    try {
+      const { deviceId } = req.params;
+      const hours = parseInt(req.query.hours) || 24;
+
+      const readings = await environmentalService.getMQ136History(deviceId, hours);
+
+      return successResponse(
+        res,
+        readings,
+        'Historial MQ136 obtenido exitosamente'
+      );
+    } catch (error) {
+      console.error('Error en EnvironmentalController.getMQ136History:', error);
+      return errorResponse(res, error.message, 500);
+    }
+  }
 }
 
 module.exports = new EnvironmentalController();

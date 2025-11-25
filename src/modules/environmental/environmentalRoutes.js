@@ -180,6 +180,66 @@ router.get('/sensors/status',
   environmentalController.getCurrentSensorStatus
 );
 
+/**
+ * @route GET /api/environmental/devices/:deviceId/history/dht22
+ * @desc Obtiene historial de lecturas DHT22 (Temperatura y Humedad)
+ * @access Private
+ * @param {string} deviceId - ID del dispositivo
+ * @query {number} hours - Horas de historial (default: 24)
+ */
+router.get('/devices/:deviceId/history/dht22',
+  authenticate,
+  environmentalController.getDHT22History
+);
+
+/**
+ * @route GET /api/environmental/devices/:deviceId/history/mq135
+ * @desc Obtiene historial de lecturas MQ135 (Calidad del Aire)
+ * @access Private
+ * @param {string} deviceId - ID del dispositivo
+ * @query {number} hours - Horas de historial (default: 24)
+ */
+router.get('/devices/:deviceId/history/mq135',
+  authenticate,
+  environmentalController.getMQ135History
+);
+
+/**
+ * @route GET /api/environmental/devices/:deviceId/history/mq7
+ * @desc Obtiene historial de lecturas MQ7 (Monóxido de Carbono)
+ * @access Private
+ * @param {string} deviceId - ID del dispositivo
+ * @query {number} hours - Horas de historial (default: 24)
+ */
+router.get('/devices/:deviceId/history/mq7',
+  authenticate,
+  environmentalController.getMQ7History
+);
+
+/**
+ * @route GET /api/environmental/devices/:deviceId/history/mq4
+ * @desc Obtiene historial de lecturas MQ4 (Metano)
+ * @access Private
+ * @param {string} deviceId - ID del dispositivo
+ * @query {number} hours - Horas de historial (default: 24)
+ */
+router.get('/devices/:deviceId/history/mq4',
+  authenticate,
+  environmentalController.getMQ4History
+);
+
+/**
+ * @route GET /api/environmental/devices/:deviceId/history/mq136
+ * @desc Obtiene historial de lecturas MQ136 (Sulfuro de Hidrógeno)
+ * @access Private
+ * @param {string} deviceId - ID del dispositivo
+ * @query {number} hours - Horas de historial (default: 24)
+ */
+router.get('/devices/:deviceId/history/mq136',
+  authenticate,
+  environmentalController.getMQ136History
+);
+
 // ============ RUTAS ADMIN (requieren rol de administrador) ============
 
 /**
