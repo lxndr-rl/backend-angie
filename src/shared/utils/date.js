@@ -85,21 +85,21 @@ const subtractDays = (date, days) => {
 /**
  * Obtiene el rango de fechas para los últimos N días
  * @param {number} days - Número de días hacia atrás
- * @returns {Object} Objeto con startDate y endDate
+ * @returns {Object} Objeto con start y end
  */
 const getLastDaysRange = (days) => {
   const endDate = new Date();
   const startDate = subtractDays(endDate, days);
   
   return {
-    startDate: getStartOfDay(startDate),
-    endDate: getEndOfDay(endDate)
+    start: getStartOfDay(startDate),
+    end: getEndOfDay(endDate)
   };
 };
 
 /**
  * Obtiene el rango de fechas para la semana actual
- * @returns {Object} Objeto con startDate y endDate
+ * @returns {Object} Objeto con start y end
  */
 const getCurrentWeekRange = () => {
   const now = new Date();
@@ -110,14 +110,14 @@ const getCurrentWeekRange = () => {
   endOfWeek.setDate(startOfWeek.getDate() + 6); // Sábado
   
   return {
-    startDate: getStartOfDay(startOfWeek),
-    endDate: getEndOfDay(endOfWeek)
+    start: getStartOfDay(startOfWeek),
+    end: getEndOfDay(endOfWeek)
   };
 };
 
 /**
  * Obtiene el rango de fechas para el mes actual
- * @returns {Object} Objeto con startDate y endDate
+ * @returns {Object} Objeto con start y end
  */
 const getCurrentMonthRange = () => {
   const now = new Date();
@@ -125,8 +125,8 @@ const getCurrentMonthRange = () => {
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
   
   return {
-    startDate: getStartOfDay(startOfMonth),
-    endDate: getEndOfDay(endOfMonth)
+    start: getStartOfDay(startOfMonth),
+    end: getEndOfDay(endOfMonth)
   };
 };
 

@@ -1,4 +1,5 @@
 const reportsService = require('./reportsService');
+const pdfGenerator = require('./pdfGenerator');
 const { successResponse, errorResponse } = require('../../shared/utils/response');
 const { USER_ROLES, TIME_INTERVALS } = require('../../shared/constants');
 
@@ -275,7 +276,7 @@ class ReportsController {
   }
 
   /**
-   * Descarga reporte en formato CSV (implementación básica)
+   * Descarga reporte en formato PDF con gráficas
    */
   async downloadReportCSV(req, res) {
     try {
@@ -288,45 +289,79 @@ class ReportsController {
 
       const userId = req.user.role === USER_ROLES.ADMIN ? req.query.userId : req.user.id;
 
-      let data;
-      let filename;
-
-      switch (type) {
-        case 'environmental':
-          const envReport = await reportsService.generateEnvironmentalReport({
-            userId,
-            deviceId,
-            startDate,
-            endDate,
-            includeAlerts: false,
-            includeStats: false
-          });
-          data = this.convertEnvironmentalDataToCSV(envReport.data);
-          filename = `reporte_ambiental_${Date.now()}.csv`;
-          break;
-
-        case 'alerts':
-          const alertsReport = await reportsService.generateAlertsReport({
-            userId,
-            deviceId,
-            startDate,
-            endDate
-          });
-          data = this.convertAlertsDataToCSV(alertsReport.alerts);
-          filename = `reporte_alertas_${Date.now()}.csv`;
-          break;
-
-        default:
-          return errorResponse(res, 'Tipo de reporte inválido', 400);
+      if (type === 'environmental') {
+        // Generar reporte ambiental
+        const envReport = await reportsService.generateEnvironmentalReport({
+          userId,
+          deviceId,
+          startDate,
+          endDate,
+          includeAlerts: false,
+          includeStats: false
+        });
+        
+        console.log('Reporte generado, datos:', {
+          hasDHT22: !!(envReport.data?.dht22),
+          hasMQ7: !!(envReport.data?.mq7),
+          hasMQ4: !!(envReport.data?.mq4),
+          hasMQ135: !!(envReport.data?.mq135),
+          totalReadings: envReport.metadata?.totalReadings
+        });
+        
+        const filename = `reporte_ambiental_${Date.now()}.pdf`;
+        
+        // Generar PDF
+        console.log('Llamando a generateEnvironmentalPDF...');
+        const pdfDoc = await pdfGenerator.generateEnvironmentalPDF(
+          envReport.data,
+          envReport.metadata
+        );
+        
+        if (!pdfDoc || typeof pdfDoc.pipe !== 'function') {
+          throw new Error('El generador de PDF no retornó un documento válido');
+        }
+        
+        console.log('PDF creado exitosamente, configurando headers...');
+        
+        // Configurar headers para PDF
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Content-Transfer-Encoding', 'binary');
+        
+        // Pipe el PDF a la respuesta
+        pdfDoc.pipe(res);
+        pdfDoc.end();
+        
+        console.log('PDF enviado correctamente');
+        
+      } else if (type === 'alerts') {
+        // Generar reporte de alertas en CSV
+        const alertsReport = await reportsService.generateAlertsReport({
+          userId,
+          deviceId,
+          startDate,
+          endDate
+        });
+        const csvData = this.convertAlertsDataToCSV(alertsReport.alerts);
+        const csvFilename = `reporte_alertas_${Date.now()}.csv`;
+        
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="${csvFilename}"`);
+        res.send(csvData);
+        
+      } else {
+        return errorResponse(res, 'Tipo de reporte inválido. Use: environmental o alerts', 400);
       }
-
-      res.setHeader('Content-Type', 'text/csv');
-      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-      res.send(data);
 
     } catch (error) {
       console.error('Error en ReportsController.downloadReportCSV:', error);
-      return errorResponse(res, error.message, 500);
+      console.error('Stack:', error.stack);
+      
+      // Si ya se enviaron headers, no podemos enviar error response
+      if (!res.headersSent) {
+        return errorResponse(res, `Error al generar reporte: ${error.message}`, 500);
+      }
     }
   }
 
@@ -335,37 +370,105 @@ class ReportsController {
   /**
    * Convierte datos ambientales a formato CSV
    */
-  convertEnvironmentalDataToCSV(data) {
-    if (data.length === 0) return 'No hay datos disponibles';
-
+  convertEnvironmentalDataToCSV(reportData) {
+    const rows = [];
+    
+    // Headers
     const headers = [
       'Fecha y Hora',
       'Dispositivo ID',
-      'Usuario',
+      'Dispositivo Nombre',
+      'Tipo Sensor',
       'Temperatura (°C)',
       'Humedad (%)',
-      'Luz (lux)',
-      'pH',
-      'Latitud',
-      'Longitud'
+      'CO (ppm)',
+      'CH4 (ppm)',
+      'Calidad Aire (ppm)',
+      'Nivel Peligro'
     ];
+    rows.push(headers.join(','));
 
-    const csvContent = [
-      headers.join(','),
-      ...data.map(item => [
-        item.timestamp,
-        item.deviceId,
-        item.user ? `${item.user.firstName} ${item.user.lastName}` : 'N/A',
-        item.temperature,
-        item.humidity,
-        item.light,
-        item.ph,
-        item.latitude || 'N/A',
-        item.longitude || 'N/A'
-      ].join(','))
-    ].join('\n');
+    // DHT22 Data
+    if (reportData.dht22 && reportData.dht22.length > 0) {
+      reportData.dht22.forEach(item => {
+        const device = item.device || {};
+        rows.push([
+          item.createdAt || item.timestamp || 'N/A',
+          device.deviceId || 'N/A',
+          device.name || 'N/A',
+          'DHT22',
+          item.temperature || '',
+          item.humidity || '',
+          '',
+          '',
+          '',
+          ''
+        ].join(','));
+      });
+    }
 
-    return csvContent;
+    // MQ7 Data
+    if (reportData.mq7 && reportData.mq7.length > 0) {
+      reportData.mq7.forEach(item => {
+        const device = item.device || {};
+        rows.push([
+          item.createdAt || item.timestamp || 'N/A',
+          device.deviceId || 'N/A',
+          device.name || 'N/A',
+          'MQ7',
+          '',
+          '',
+          item.co_ppm || '',
+          '',
+          '',
+          item.dangerLevel || ''
+        ].join(','));
+      });
+    }
+
+    // MQ4 Data
+    if (reportData.mq4 && reportData.mq4.length > 0) {
+      reportData.mq4.forEach(item => {
+        const device = item.device || {};
+        rows.push([
+          item.createdAt || item.timestamp || 'N/A',
+          device.deviceId || 'N/A',
+          device.name || 'N/A',
+          'MQ4',
+          '',
+          '',
+          '',
+          item.ch4_ppm || '',
+          '',
+          item.dangerLevel || ''
+        ].join(','));
+      });
+    }
+
+    // MQ135 Data
+    if (reportData.mq135 && reportData.mq135.length > 0) {
+      reportData.mq135.forEach(item => {
+        const device = item.device || {};
+        rows.push([
+          item.createdAt || item.timestamp || 'N/A',
+          device.deviceId || 'N/A',
+          device.name || 'N/A',
+          'MQ135',
+          '',
+          '',
+          '',
+          '',
+          item.ppm || '',
+          item.airQuality || ''
+        ].join(','));
+      });
+    }
+
+    if (rows.length === 1) {
+      return 'No hay datos disponibles para el período seleccionado';
+    }
+
+    return rows.join('\n');
   }
 
   /**
@@ -375,29 +478,37 @@ class ReportsController {
     if (alerts.length === 0) return 'No hay alertas disponibles';
 
     const headers = [
-      'Fecha y Hora',
+      'Fecha Creación',
       'Tipo',
       'Severidad',
       'Estado',
+      'Título',
       'Mensaje',
       'Dispositivo ID',
-      'Usuario',
-      'Valor',
-      'Umbral'
+      'Dispositivo Nombre',
+      'Tipo Sensor',
+      'Valor Disparador',
+      'Valor Umbral',
+      'Resuelta',
+      'Fecha Resolución'
     ];
 
     const csvContent = [
       headers.join(','),
       ...alerts.map(alert => [
-        alert.timestamp,
+        alert.createdAt,
         alert.type,
         alert.severity,
-        alert.status,
+        alert.isResolved ? 'Resuelta' : 'Activa',
+        `"${alert.title}"`,
         `"${alert.message}"`,
-        alert.deviceId,
-        alert.user ? `${alert.user.firstName} ${alert.user.lastName}` : 'N/A',
-        alert.value || 'N/A',
-        alert.threshold || 'N/A'
+        alert.device?.deviceId || 'N/A',
+        alert.device?.name || 'N/A',
+        alert.sensorType || 'N/A',
+        alert.triggerValue || 'N/A',
+        alert.thresholdValue || 'N/A',
+        alert.isResolved ? 'Sí' : 'No',
+        alert.resolvedAt || 'N/A'
       ].join(','))
     ].join('\n');
 

@@ -12,8 +12,8 @@ const { query, body } = require('express-validator');
 const validateReportQuery = [
   query('period')
     .optional()
-    .isIn(['hour', 'day', 'week', 'month', 'year'])
-    .withMessage('Período inválido. Debe ser: hour, day, week, month, year'),
+    .isIn(['hour', 'day', 'week', 'month', 'year', 'custom'])
+    .withMessage('Período inválido. Debe ser: hour, day, week, month, year, custom'),
     
   query('interval')
     .optional()
