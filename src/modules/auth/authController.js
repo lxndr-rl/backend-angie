@@ -62,16 +62,21 @@ class AuthController {
 
   async refreshToken(req, res) {
     try {
+      console.log('📥 Refresh token request recibido');
       const { refreshToken } = req.body;
       
       if (!refreshToken) {
+        console.log('❌ No se proporcionó refresh token');
         return errorResponse(res, 'Token de actualización requerido', 400);
       }
 
+      console.log('🔄 Procesando refresh token...');
       const result = await authService.refreshToken(refreshToken);
-      return successResponse(res, 'Token actualizado exitosamente', result);
+      console.log('✅ Token refrescado exitosamente');
+      
+      return successResponse(res, result, 'Token actualizado exitosamente');
     } catch (error) {
-      console.error('Error en refreshToken:', error);
+      console.error('❌ Error en refreshToken controller:', error);
       return errorResponse(res, error.message, error.statusCode || 401);
     }
   }

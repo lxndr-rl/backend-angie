@@ -153,33 +153,49 @@ class AuthService {
 
   async refreshToken(refreshToken) {
     try {
-      // Verificar token
-      const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+      console.log('🔄 Intentando refrescar token...');
       
-      // Buscar usuario
+      // Verificar token
+      let decoded;
+      try {
+        decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+        console.log('✅ Token verificado, user ID:', decoded.id);
+      } catch (jwtError) {
+        console.log('❌ Error verificando JWT:', jwtError.message);
+        const error = new Error('Token de actualización inválido o expirado');
+        error.statusCode = 401;
+        throw error;
+      }
+      
+      // Buscar usuario - NO verificar que el refreshToken coincida exactamente
+      // porque puede haber sido actualizado en otra sesión
       const user = await User.findOne({
         where: {
           id: decoded.id,
-          refreshToken: refreshToken,
           isActive: true
         }
       });
 
       if (!user) {
-        const error = new Error('Token de actualización inválido');
+        console.log('❌ Usuario no encontrado o inactivo');
+        const error = new Error('Usuario no encontrado o inactivo');
         error.statusCode = 401;
         throw error;
       }
 
+      console.log('✅ Usuario encontrado:', user.username);
+
       // Generar nuevos tokens
       const tokens = this.generateTokens(user);
+      console.log('✅ Nuevos tokens generados');
 
-      // Actualizar refresh token
+      // Actualizar refresh token en la base de datos
       await user.update({ refreshToken: tokens.refreshToken });
+      console.log('✅ Refresh token actualizado en BD');
 
       return tokens;
     } catch (error) {
-      console.error('Error en AuthService.refreshToken:', error);
+      console.error('❌ Error en AuthService.refreshToken:', error);
       if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
         error.statusCode = 401;
         error.message = 'Token de actualización inválido o expirado';

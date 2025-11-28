@@ -145,6 +145,10 @@ class UserController {
       const { id } = req.params;
       const updateData = req.body;
 
+      console.log('=== UPDATE USER DEBUG ===');
+      console.log('User ID:', id);
+      console.log('Update Data:', JSON.stringify(updateData, null, 2));
+
       const updatedUser = await userService.updateUserProfile(id, updateData);
 
       return successResponse(
@@ -154,9 +158,15 @@ class UserController {
       );
     } catch (error) {
       console.error('Error en UserController.updateUserProfile:', error);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
       
       if (error.message === 'Usuario no encontrado') {
         return notFoundResponse(res, error.message);
+      }
+      
+      if (error.statusCode === 400) {
+        return errorResponse(res, error.message, 400);
       }
       
       return errorResponse(res, error.message, 500);

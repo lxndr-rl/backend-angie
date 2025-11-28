@@ -8,8 +8,12 @@ const { body, validationResult } = require('express-validator');
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log('=== VALIDATION ERRORS ===');
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    console.log('Validation errors:', JSON.stringify(errors.array(), null, 2));
     return res.status(400).json({
       success: false,
+      error: errors.array()[0].msg,
       errors: errors.array()
     });
   }
@@ -29,10 +33,14 @@ const validateUserCreate = [
 ];
 
 const validateUserUpdate = [
-  body('firstName').optional().trim().isLength({ min: 1, max: 50 }),
-  body('lastName').optional().trim().isLength({ min: 1, max: 50 }),
-  body('address').optional().trim().isLength({ min: 5, max: 200 }),
-  body('phone').optional().trim().isLength({ min: 7, max: 15 }),
+  body('username').optional({ checkFalsy: true }).trim().isLength({ min: 3, max: 50 }).withMessage('El usuario debe tener entre 3 y 50 caracteres'),
+  body('firstName').optional({ checkFalsy: false }).trim().isLength({ min: 1, max: 50 }).withMessage('El nombre debe tener entre 1 y 50 caracteres'),
+  body('lastName').optional({ checkFalsy: false }).trim().isLength({ min: 1, max: 50 }).withMessage('El apellido debe tener entre 1 y 50 caracteres'),
+  body('email').optional({ checkFalsy: false }).isEmail().withMessage('Email inválido'),
+  body('address').optional({ checkFalsy: true }).trim(),
+  body('phone').optional({ checkFalsy: true }).trim(),
+  body('role').optional({ checkFalsy: false }).isIn(['admin', 'user']).withMessage('Rol inválido'),
+  body('password').optional({ checkFalsy: true }).isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
   handleValidationErrors
 ];
 

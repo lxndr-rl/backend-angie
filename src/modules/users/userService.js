@@ -120,15 +120,42 @@ class UserService {
         throw new Error('Usuario no encontrado');
       }
 
-      // Campos permitidos para actualizar
-      const allowedFields = ['firstName', 'lastName', 'address', 'phone'];
+      // Campos permitidos para actualizar (username no se puede cambiar)
+      const allowedFields = ['firstName', 'lastName', 'email', 'address', 'phone', 'role'];
       const filteredData = {};
 
       allowedFields.forEach(field => {
-        if (updateData[field] !== undefined) {
-          filteredData[field] = updateData[field];
+        if (updateData[field] !== undefined && updateData[field] !== null) {
+          // Para strings, también verificar que no estén vacíos (excepto address y phone que pueden ser opcionales)
+          if (typeof updateData[field] === 'string') {
+            const trimmed = updateData[field].trim();
+            if (trimmed !== '' || field === 'address' || field === 'phone') {
+              filteredData[field] = trimmed || null;
+            }
+          } else {
+            filteredData[field] = updateData[field];
+          }
         }
       });
+
+      // Si se incluye contraseña y no está vacía, hashearla
+      if (updateData.password && updateData.password.trim() !== '') {
+        const bcrypt = require('bcryptjs');
+        filteredData.password = await bcrypt.hash(updateData.password, 12);
+      }
+
+      // Verificar email único si se está actualizando
+      if (filteredData.email && filteredData.email !== user.email) {
+        const existingUser = await User.findOne({
+          where: { email: filteredData.email, id: { [Op.ne]: userId } }
+        });
+
+        if (existingUser) {
+          const error = new Error('Ya existe un usuario con este email');
+          error.statusCode = 400;
+          throw error;
+        }
+      }
 
       await user.update(filteredData);
 
