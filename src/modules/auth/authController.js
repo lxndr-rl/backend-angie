@@ -5,8 +5,17 @@ const { successResponse, errorResponse } = require('../../shared/utils/response'
 class AuthController {
   async register(req, res) {
     try {
+      console.log('📝 Registro de usuario - Datos recibidos:', {
+        username: req.body.username,
+        email: req.body.email,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        phone: req.body.phone
+      });
+
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
+        console.log('❌ Errores de validación:', errors.array());
         return errorResponse(res, 'Datos de entrada inválidos', 400, errors.array());
       }
 
@@ -20,15 +29,19 @@ class AuthController {
         phone
       });
 
-      // Formatear respuesta para que coincida con lo que espera Android
+      console.log('✅ Usuario registrado exitosamente:', result.user.username);
+
+      // Formatear respuesta para que coincida con lo que espera la app móvil
       const responseData = {
-        token: result.accessToken,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
         user: result.user
       };
 
       return successResponse(res, responseData, 'Usuario registrado exitosamente', 201);
     } catch (error) {
-      console.error('Error en register:', error);
+      console.error('❌ Error en register:', error);
+      console.error('Stack:', error.stack);
       return errorResponse(res, error.message, error.statusCode || 500);
     }
   }
