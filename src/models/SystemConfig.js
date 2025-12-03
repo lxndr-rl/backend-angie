@@ -24,7 +24,7 @@ const SystemConfig = sequelize.define('SystemConfig', {
     allowNull: true
   },
   category: {
-    type: DataTypes.ENUM('thresholds', 'alerts', 'system', 'sensors', 'notification', 'air_quality', 'data_collection'),
+    type: DataTypes.STRING(50),
     allowNull: false,
     defaultValue: 'system'
   },

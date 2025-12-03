@@ -75,7 +75,7 @@ class ConfigService {
           dataCollectionInterval: DEFAULT_CONFIG.DATA_COLLECTION_INTERVAL
         },
         description: 'Umbrales ideales para cultivo de cacao',
-        category: 'cacao_optimal',
+        category: 'thresholds',
         isActive: true,
         isEditable: true
       });
