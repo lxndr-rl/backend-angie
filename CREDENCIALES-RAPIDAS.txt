@@ -1,0 +1,88 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    USUARIOS DE PRUEBA - ACCESO RÁPIDO                        ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 1. MARÍA GARCÍA (ADMINISTRADORA)                                             │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Username:  maria.garcia                                                      │
+│ Email:     maria.garcia@cacaomonitor.com                                     │
+│ Password:  Maria2024!                                                        │
+│ Role:      admin                                                             │
+│ Phone:     +593987654321                                                     │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 2. CARLOS MENDOZA (USUARIO REGULAR)                                          │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Username:  carlos.mendoza                                                    │
+│ Email:     carlos.mendoza@cacaomonitor.com                                   │
+│ Password:  Carlos2024!                                                       │
+│ Role:      user                                                              │
+│ Phone:     +593998765432                                                     │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 3. ANA RODRÍGUEZ (USUARIO REGULAR)                                           │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Username:  ana.rodriguez                                                     │
+│ Email:     ana.rodriguez@cacaomonitor.com                                    │
+│ Password:  Ana2024!                                                          │
+│ Role:      user                                                              │
+│ Phone:     +593976543210                                                     │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                           INSTRUCCIONES DE USO                               ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+1. Ejecuta el script SQL:
+   mysql -u usuario -p cacao_monitoring < insert-test-users.sql
+
+2. O copia el contenido de insert-test-users.sql en HeidiSQL/phpMyAdmin
+
+3. Usa cualquiera de estos usuarios para hacer login en:
+   - App móvil (React Native)
+   - Frontend web
+   - Postman/API testing
+
+4. Puedes usar el username O el email para hacer login
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                              EJEMPLO DE LOGIN                                ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "username": "maria.garcia",
+  "password": "Maria2024!"
+}
+
+O con email:
+
+{
+  "username": "maria.garcia@cacaomonitor.com",
+  "password": "Maria2024!"
+}
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                            ARCHIVOS GENERADOS                                ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+✓ insert-test-users.sql       - Script SQL listo para ejecutar
+✓ generate-test-users.js      - Script Node.js para regenerar hashes
+✓ USUARIOS-PRUEBA.md          - Documentación completa
+✓ CREDENCIALES-RAPIDAS.txt    - Este archivo (referencia rápida)
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                  NOTAS                                       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+• Todos los usuarios están activos y con email verificado
+• Las contraseñas están hasheadas con bcrypt (12 rounds)
+• María García tiene rol de administrador
+• Carlos y Ana tienen rol de usuario regular
+• Puedes cambiar las contraseñas ejecutando generate-test-users.js
+

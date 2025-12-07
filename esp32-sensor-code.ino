@@ -46,6 +46,46 @@ const char* deviceId = "ESP32_AIR_001";  // ID único de este dispositivo
 #define R0_MQ4   10.0
 #define R0_MQ136 10.0
 
+// ============ UMBRALES PARA CULTIVO DE CACAO EN ECUADOR ============
+
+// Temperatura (°C) - Theobroma cacao
+#define TEMP_MIN_IDEAL    20.0   // Mínimo ideal para cacao
+#define TEMP_MAX_IDEAL    32.0   // Máximo ideal para cacao
+#define TEMP_MIN_CRITICO  15.0   // Daño a planta
+#define TEMP_MAX_CRITICO  38.0   // Estrés severo
+
+// Humedad Relativa (%)
+#define HUM_MIN_IDEAL     70.0   // Mínimo ideal
+#define HUM_MAX_IDEAL     85.0   // Máximo ideal
+#define HUM_MIN_CRITICO   50.0   // Estrés hídrico
+#define HUM_MAX_CRITICO   95.0   // Riesgo de hongos (Moniliasis)
+
+// Calidad del Aire - CO2 (PPM)
+#define CO2_MAX_NORMAL    600    // Nivel aceptable
+#define CO2_MAX_ALERTA    1000   // Ventilación deficiente
+#define CO2_MAX_CRITICO   2000   // Riesgo para trabajadores
+
+// Monóxido de Carbono - CO (PPM)
+#define CO_SAFE           9      // Nivel seguro (OSHA 8h)
+#define CO_CAUTION        35     // Precaución
+#define CO_WARNING        100    // Síntomas leves
+#define CO_DANGER         400    // Síntomas graves
+#define CO_EXTREME        800    // Mortal
+
+// Metano - CH4 (PPM)
+#define CH4_SAFE          1000   // Nivel seguro
+#define CH4_CAUTION       5000   // Precaución
+#define CH4_WARNING       10000  // 1% LEL
+#define CH4_DANGER        25000  // 2.5% LEL
+#define CH4_EXTREME       50000  // 5% LEL - Inflamable
+
+// Sulfuro de Hidrógeno - H2S (PPM)
+#define H2S_SAFE          0.5    // Nivel seguro
+#define H2S_CAUTION       10     // Olor detectable
+#define H2S_WARNING       50     // Irritación
+#define H2S_DANGER        100    // Pérdida de olfato
+#define H2S_EXTREME       500    // Mortal
+
 // ============ CONFIGURACIÓN DE TIEMPO ============
 #define SEND_INTERVAL 5000     // Enviar datos cada 5 segundos
 #define WIFI_TIMEOUT 10000     // Timeout de conexión WiFi
@@ -359,11 +399,82 @@ void loop() {
     Serial.printf("║ 💨 MQ-136 (H2S) : %7.0f PPM (%4.2fV) ║\n", ppm136, v136);
     Serial.println("╚════════════════════════════════════════╝");
     
-    // Alertas locales
-    if (ppm135 > 1000) Serial.println("⚠️  ALERTA: CO2 elevado!");
-    if (ppm7 > 50)     Serial.println("⚠️  ALERTA: CO peligroso!");
-    if (ppm4 > 1000)   Serial.println("⚠️  ALERTA: Metano detectado!");
-    if (ppm136 > 10)   Serial.println("⚠️  ALERTA: H2S detectado!");
+    // ============ SISTEMA DE ALERTAS PARA CACAO ============
+    Serial.println();
+    
+    // Alertas de Temperatura
+    if (temp < TEMP_MIN_CRITICO) {
+      Serial.println("🚨 CRÍTICO: Temperatura muy baja - Riesgo de daño a planta");
+    } else if (temp < TEMP_MIN_IDEAL) {
+      Serial.println("⚠️  ALERTA: Temperatura baja - Crecimiento lento");
+    } else if (temp > TEMP_MAX_CRITICO) {
+      Serial.println("🚨 CRÍTICO: Temperatura muy alta - Estrés severo");
+    } else if (temp > TEMP_MAX_IDEAL) {
+      Serial.println("⚠️  ALERTA: Temperatura alta - Aumentar ventilación");
+    }
+    
+    // Alertas de Humedad
+    if (hum < HUM_MIN_CRITICO) {
+      Serial.println("🚨 CRÍTICO: Humedad muy baja - Estrés hídrico");
+    } else if (hum < HUM_MIN_IDEAL) {
+      Serial.println("⚠️  ALERTA: Humedad baja - Aumentar riego/nebulización");
+    } else if (hum > HUM_MAX_CRITICO) {
+      Serial.println("🚨 CRÍTICO: Humedad muy alta - Riesgo de Moniliasis");
+    } else if (hum > HUM_MAX_IDEAL) {
+      Serial.println("⚠️  ALERTA: Humedad alta - Mejorar ventilación");
+    }
+    
+    // Alertas de CO2 (Calidad del Aire)
+    if (ppm135 > CO2_MAX_CRITICO) {
+      Serial.println("🚨 CRÍTICO: CO2 muy elevado - Riesgo para trabajadores");
+    } else if (ppm135 > CO2_MAX_ALERTA) {
+      Serial.println("⚠️  ALERTA: CO2 elevado - Mejorar ventilación");
+    }
+    
+    // Alertas de CO (Monóxido de Carbono)
+    if (ppm7 > CO_EXTREME) {
+      Serial.println("🚨🚨 EMERGENCIA: CO MORTAL - EVACUAR INMEDIATAMENTE");
+    } else if (ppm7 > CO_DANGER) {
+      Serial.println("🚨 CRÍTICO: CO peligroso - Síntomas graves");
+    } else if (ppm7 > CO_WARNING) {
+      Serial.println("⚠️  ALERTA: CO detectado - Revisar combustión");
+    } else if (ppm7 > CO_CAUTION) {
+      Serial.println("⚠️  PRECAUCIÓN: CO elevado - Ventilar área");
+    }
+    
+    // Alertas de CH4 (Metano)
+    if (ppm4 > CH4_EXTREME) {
+      Serial.println("🚨🚨 EMERGENCIA: CH4 INFLAMABLE - Riesgo de explosión");
+    } else if (ppm4 > CH4_DANGER) {
+      Serial.println("🚨 CRÍTICO: CH4 peligroso - Eliminar fuentes de ignición");
+    } else if (ppm4 > CH4_WARNING) {
+      Serial.println("⚠️  ALERTA: CH4 elevado - Revisar fermentación");
+    } else if (ppm4 > CH4_CAUTION) {
+      Serial.println("⚠️  PRECAUCIÓN: CH4 detectado - Ventilar área");
+    }
+    
+    // Alertas de H2S (Sulfuro de Hidrógeno)
+    if (ppm136 > H2S_EXTREME) {
+      Serial.println("🚨🚨 EMERGENCIA: H2S MORTAL - EVACUAR INMEDIATAMENTE");
+    } else if (ppm136 > H2S_DANGER) {
+      Serial.println("🚨 CRÍTICO: H2S peligroso - Parálisis respiratoria");
+    } else if (ppm136 > H2S_WARNING) {
+      Serial.println("⚠️  ALERTA: H2S elevado - Irritación severa");
+    } else if (ppm136 > H2S_CAUTION) {
+      Serial.println("⚠️  PRECAUCIÓN: H2S detectado - Revisar fermentación");
+    }
+    
+    // Mensaje de condiciones óptimas
+    if (temp >= TEMP_MIN_IDEAL && temp <= TEMP_MAX_IDEAL &&
+        hum >= HUM_MIN_IDEAL && hum <= HUM_MAX_IDEAL &&
+        ppm135 <= CO2_MAX_NORMAL &&
+        ppm7 <= CO_SAFE &&
+        ppm4 <= CH4_SAFE &&
+        ppm136 <= H2S_SAFE) {
+      Serial.println("✅ CONDICIONES ÓPTIMAS para cultivo de cacao");
+    }
+    
+    Serial.println();
     
     // Enviar datos al servidor
     if (!isnan(temp) && !isnan(hum)) {

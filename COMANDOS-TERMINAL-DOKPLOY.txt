@@ -1,0 +1,95 @@
+═══════════════════════════════════════════════════════════════════════════════
+  COMANDOS PARA INSERTAR USUARIOS EN TERMINAL DE DOKPLOY (MySQL)
+═══════════════════════════════════════════════════════════════════════════════
+
+PASO 1: Abrir Terminal
+----------------------
+Haz clic en el botón "Open Terminal" en la interfaz de Dokploy (mysql-db)
+
+
+PASO 2: Conectarse a MySQL
+---------------------------
+Ejecuta este comando (te pedirá la contraseña que ves en "Password"):
+
+mysql -u mysql -p cacao_monitoring
+
+Ingresa la contraseña cuando te la pida.
+
+
+PASO 3: Insertar Usuario 1 - María García (Admin)
+--------------------------------------------------
+Copia y pega este comando completo:
+
+INSERT INTO users (username, email, password, firstName, lastName, phone, role, isActive, emailVerified, createdAt, updatedAt) VALUES ('maria.garcia', 'maria.garcia@cacaomonitor.com', '$2b$12$k6C6Yj6tTNcdznRIckSbw.pT8ezCnIg8AFO/3TD5FsLZBmrwPB9FK', 'María', 'García', '+593987654321', 'admin', 1, 1, NOW(), NOW());
+
+
+PASO 4: Insertar Usuario 2 - Carlos Mendoza (User)
+---------------------------------------------------
+Copia y pega este comando completo:
+
+INSERT INTO users (username, email, password, firstName, lastName, phone, role, isActive, emailVerified, createdAt, updatedAt) VALUES ('carlos.mendoza', 'carlos.mendoza@cacaomonitor.com', '$2b$12$I9VsUpwyLzGypOcR3zfcZ.IiHs5PFHl8Tf6A2B7/yp4VF1dzEUpTO', 'Carlos', 'Mendoza', '+593998765432', 'user', 1, 1, NOW(), NOW());
+
+
+PASO 5: Insertar Usuario 3 - Ana Rodríguez (User)
+--------------------------------------------------
+Copia y pega este comando completo:
+
+INSERT INTO users (username, email, password, firstName, lastName, phone, role, isActive, emailVerified, createdAt, updatedAt) VALUES ('ana.rodriguez', 'ana.rodriguez@cacaomonitor.com', '$2b$12$tb/JQuZ3vUYIPu2yBgXg5ubaDroD0IJeiubCR1J7sC7SV.7809cPG', 'Ana', 'Rodríguez', '+593976543210', 'user', 1, 1, NOW(), NOW());
+
+
+PASO 6: Verificar que se insertaron correctamente
+--------------------------------------------------
+SELECT id, username, email, firstName, lastName, role, isActive FROM users WHERE username IN ('maria.garcia', 'carlos.mendoza', 'ana.rodriguez');
+
+
+PASO 7: Salir de MySQL
+-----------------------
+exit
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  ALTERNATIVA: TODO EN UN SOLO COMANDO
+═══════════════════════════════════════════════════════════════════════════════
+
+Si prefieres ejecutar todo de una vez, usa este comando desde la terminal:
+
+mysql -u mysql -p cacao_monitoring -e "
+INSERT INTO users (username, email, password, firstName, lastName, phone, role, isActive, emailVerified, createdAt, updatedAt) VALUES ('maria.garcia', 'maria.garcia@cacaomonitor.com', '\$2b\$12\$k6C6Yj6tTNcdznRIckSbw.pT8ezCnIg8AFO/3TD5FsLZBmrwPB9FK', 'María', 'García', '+593987654321', 'admin', 1, 1, NOW(), NOW());
+INSERT INTO users (username, email, password, firstName, lastName, phone, role, isActive, emailVerified, createdAt, updatedAt) VALUES ('carlos.mendoza', 'carlos.mendoza@cacaomonitor.com', '\$2b\$12\$I9VsUpwyLzGypOcR3zfcZ.IiHs5PFHl8Tf6A2B7/yp4VF1dzEUpTO', 'Carlos', 'Mendoza', '+593998765432', 'user', 1, 1, NOW(), NOW());
+INSERT INTO users (username, email, password, firstName, lastName, phone, role, isActive, emailVerified, createdAt, updatedAt) VALUES ('ana.rodriguez', 'ana.rodriguez@cacaomonitor.com', '\$2b\$12\$tb/JQuZ3vUYIPu2yBgXg5ubaDroD0IJeiubCR1J7sC7SV.7809cPG', 'Ana', 'Rodríguez', '+593976543210', 'user', 1, 1, NOW(), NOW());
+SELECT id, username, email, firstName, lastName, role FROM users WHERE username IN ('maria.garcia', 'carlos.mendoza', 'ana.rodriguez');
+"
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  CREDENCIALES DE LOS USUARIOS
+═══════════════════════════════════════════════════════════════════════════════
+
+1. María García (Admin)
+   Username: maria.garcia
+   Password: Maria2024!
+
+2. Carlos Mendoza (User)
+   Username: carlos.mendoza
+   Password: Carlos2024!
+
+3. Ana Rodríguez (User)
+   Username: ana.rodriguez
+   Password: Ana2024!
+
+
+═══════════════════════════════════════════════════════════════════════════════
+  SOLUCIÓN DE PROBLEMAS
+═══════════════════════════════════════════════════════════════════════════════
+
+Error: "Duplicate entry"
+→ Los usuarios ya existen. Elimínalos primero:
+  DELETE FROM users WHERE username IN ('maria.garcia', 'carlos.mendoza', 'ana.rodriguez');
+
+Error: "Access denied"
+→ Verifica que estés usando el usuario y contraseña correctos de Dokploy
+
+Error: "Unknown database"
+→ Verifica que la base de datos se llame 'cacao_monitoring'
+  Puedes ver las bases de datos con: SHOW DATABASES;
+

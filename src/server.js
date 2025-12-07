@@ -17,6 +17,7 @@ const userRoutes = require('./modules/users/userRoutes');
 const environmentalRoutes = require('./modules/environmental/environmentalRoutes');
 const reportsRoutes = require('./modules/reports/reportsRoutes');
 const configRoutes = require('./modules/config/configRoutes');
+const alertsRoutes = require('./modules/alerts/alertsRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -130,6 +131,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/environmental', environmentalRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/config', configRoutes);
+app.use('/api/alerts', alertsRoutes);
 
 // Ruta de información de la API
 app.get('/api', (req, res) => {
@@ -149,6 +151,10 @@ app.get('/api', (req, res) => {
       environmental: {
         description: 'Datos ambientales y sensores',
         endpoints: ['/api/environmental/data', '/api/environmental/devices', '/api/environmental/stats']
+      },
+      alerts: {
+        description: 'Sistema de alertas',
+        endpoints: ['/api/alerts/active', '/api/alerts/recent', '/api/alerts/summary/stats']
       },
       reports: {
         description: 'Reportes y análisis',
@@ -212,6 +218,7 @@ async function startServer() {
       console.log('   • Autenticación: /api/auth/*');
       console.log('   • Usuarios: /api/users/*');
       console.log('   • Datos Ambientales: /api/environmental/*');
+      console.log('   • Alertas: /api/alerts/*');
       console.log('   • Reportes: /api/reports/*');
       console.log('   • Configuración: /api/config/*');
       console.log('='.repeat(50));
