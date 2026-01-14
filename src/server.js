@@ -22,6 +22,10 @@ const alertsRoutes = require('./modules/alerts/alertsRoutes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ============ TRUST PROXY (para Dokploy/Nginx) ============
+// Habilitar trust proxy para obtener la IP real detrás de proxies
+app.set('trust proxy', 1);
+
 // ============ MIDDLEWARE DE SEGURIDAD ============
 
 // Helmet para headers de seguridad
@@ -64,12 +68,30 @@ const authLimiter = rateLimit({
   skipSuccessfulRequests: true,
 });
 
-// CORS
+// CORS - Configuración para producción con Dokploy
+const allowedOrigins = [
+  'https://jorgelp.cloud',
+  'https://api.jorgelp.cloud',
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://192.168.100.88:5173'
+];
+
 app.use(cors({
-  origin: true, // Permitir todos los orígenes en desarrollo
+  origin: function (origin, callback) {
+    // Permitir requests sin origin (como desde Postman o ESP32)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+      callback(null, true);
+    } else {
+      callback(null, true); // Permitir todos en producción temporalmente
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  exposedHeaders: ['Content-Length', 'X-Request-Id']
 }));
 
 // ============ MIDDLEWARE GENERAL ============
