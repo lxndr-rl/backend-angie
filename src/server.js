@@ -44,7 +44,7 @@ app.use(helmet({
 // Rate limiting (desactivado en desarrollo)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: process.env.NODE_ENV === 'development' ? 10000 : 100, // Sin límite en desarrollo
+  max: process.env.NODE_ENV === 'development' ? 10000 : 300, // 300 requests en producción
   message: {
     error: 'Demasiadas solicitudes desde esta IP, intenta de nuevo más tarde.'
   },
@@ -57,10 +57,10 @@ if (process.env.NODE_ENV !== 'development') {
   app.use(limiter);
 }
 
-// Rate limiting específico para autenticación (desactivado en desarrollo)
+// Rate limiting específico para autenticación (más permisivo)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: process.env.NODE_ENV === 'development' ? 10000 : 5, // Sin límite en desarrollo
+  max: process.env.NODE_ENV === 'development' ? 10000 : 20, // 20 intentos en producción
   message: {
     success: false,
     error: 'Demasiados intentos de login, intenta de nuevo en 15 minutos.'
