@@ -21,7 +21,9 @@ services:
     env_file:
       - .env
     ports:
-      - "3000:3000"
+      # Puerto host:contenedor. En local seguirás entrando por http://localhost:3000,
+      # pero dentro del contenedor la app escucha en 8000 (coincide con Dockerfile).
+      - "3000:8000"
     depends_on:
       - db
     volumes:

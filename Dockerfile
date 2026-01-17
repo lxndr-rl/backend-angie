@@ -42,17 +42,18 @@ COPY --chown=nodejs:nodejs . .
 
 # Set environment variables
 ENV NODE_ENV=production
-ENV PORT=3000
+# Puerto interno de la app dentro del contenedor (Dokploy apuntará a este)
+ENV PORT=8000
 
 # Change to non-root user
 USER nodejs
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); })"
+  CMD node -e "require('http').get('http://localhost:8000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); })"
 
-# Expose port
-EXPOSE 3000
+# Expose port (interno del contenedor)
+EXPOSE 8000
 
 # Start application
 CMD ["node", "src/server.js"]
