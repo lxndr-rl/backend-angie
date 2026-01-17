@@ -88,7 +88,7 @@ app.use(cors({
       console.log('✅ Solicitud sin Origin permitida (ESP32/IoT)');
       return callback(null, true);
     }
-    
+
     if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
       callback(null, true);
     } else {
@@ -114,14 +114,14 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use((req, res, next) => {
   const logMsg = `${new Date().toISOString()} - ${req.method} ${req.url} - IP: ${req.ip}`;
   console.log(logMsg);
-  
+
   // Log especial para rutas de sensores ESP32
   if (req.url.includes('/sensor/data')) {
     console.log('🤖 [ESP32] Solicitud de sensor detectada');
     console.log('   Headers:', JSON.stringify(req.headers, null, 2));
     console.log('   Body:', JSON.stringify(req.body, null, 2));
   }
-  
+
   next();
 });
 
@@ -155,6 +155,17 @@ app.get('/', (req, res) => {
       config: '/api/config'
     }
   });
+});
+
+// Ruta para favicon (evita 404 ruidosos del navegador)
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end();
+});
+
+// Ruta para service worker (placeholder para PWA/frontend)
+app.get('/sw.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.status(200).send(`// Service worker placeholder\nself.addEventListener('install', () => { /* no-op */ });`);
 });
 
 // Aplicar rate limiting específico a rutas de autenticación (solo en producción)
@@ -225,7 +236,7 @@ async function startServer() {
     // Verificar conexión a base de datos
     await db.authenticate();
     console.log('✅ Conexión a MySQL establecida correctamente');
-    
+
     // Sincronizar modelos (crear tablas si no existen)
     await db.sync({ force: false });
     console.log('✅ Modelos sincronizados con la base de datos');

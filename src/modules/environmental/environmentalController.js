@@ -11,7 +11,7 @@ class EnvironmentalController {
       console.log('🤖 [ESP32] registerSensorData - Inicio del procesamiento');
       console.log('🤖 [ESP32] Body recibido:', JSON.stringify(req.body, null, 2));
       console.log('🤖 [ESP32] Headers:', JSON.stringify(req.headers, null, 2));
-      
+
       const {
         deviceId,
         temperature,
@@ -93,7 +93,9 @@ class EnvironmentalController {
         longitude
       } = req.body;
 
-      const userId = req.user.id;
+      // Si hay usuario autenticado, asociar el registro a ese usuario;
+      // si no, permitir registro anónimo (para dispositivos/sensores sin login).
+      const userId = req.user ? req.user.id : null;
 
       const data = await environmentalService.registerEnvironmentalData({
         temperature,
