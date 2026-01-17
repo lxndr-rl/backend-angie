@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const environmentalController = require('./environmentalController');
-const { authenticate, requireAdmin } = require('../../shared/middleware/auth');
-const { 
-  validateEnvironmentalData, 
-  validateDeviceId, 
+const { authenticate, requireAdmin, optionalAuth } = require('../../shared/middleware/auth');
+const {
+  validateEnvironmentalData,
+  validateDeviceId,
   validateDateRange,
-  handleValidationErrors 
+  handleValidationErrors
 } = require('../../shared/middleware/validation');
 const { query } = require('express-validator');
 
@@ -16,12 +16,12 @@ const validateStatsQuery = [
     .optional()
     .isIn(['hour', 'day', 'week', 'month'])
     .withMessage('Período inválido. Debe ser: hour, day, week, month'),
-    
+
   query('userId')
     .optional()
     .isInt({ min: 1 })
     .withMessage('ID de usuario inválido'),
-    
+
   handleValidationErrors
 ];
 
@@ -29,17 +29,17 @@ const validateChartQuery = [
   query('deviceId')
     .notEmpty()
     .withMessage('El ID del dispositivo es requerido'),
-    
+
   query('interval')
     .optional()
     .isIn(['hour', 'day', 'week'])
     .withMessage('Intervalo inválido. Debe ser: hour, day, week'),
-    
+
   query('limit')
     .optional()
     .isInt({ min: 1, max: 1000 })
     .withMessage('Límite debe estar entre 1 y 1000'),
-    
+
   handleValidationErrors
 ];
 
@@ -93,7 +93,7 @@ router.post('/sensor/data',
 /**
  * @route POST /api/environmental/data
  * @desc Registra nuevos datos ambientales
- * @access Private
+ * @access Public (autenticación opcional)
  * @body {number} temperature - Temperatura en °C
  * @body {number} humidity - Humedad en %
  * @body {number} light - Nivel de luz en lux
@@ -103,7 +103,7 @@ router.post('/sensor/data',
  * @body {number} [longitude] - Longitud GPS (opcional)
  */
 router.post('/data',
-  authenticate,
+  optionalAuth,
   validateEnvironmentalData,
   environmentalController.registerData
 );

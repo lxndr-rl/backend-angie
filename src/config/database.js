@@ -11,7 +11,7 @@ const sequelize = new Sequelize(
     port: process.env.DB_PORT || 3306,
     dialect: 'mysql',
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
-    
+
     // Pool de conexiones
     pool: {
       max: parseInt(process.env.DB_POOL_MAX) || 10,
@@ -19,19 +19,20 @@ const sequelize = new Sequelize(
       acquire: parseInt(process.env.DB_POOL_ACQUIRE) || 30000,
       idle: parseInt(process.env.DB_POOL_IDLE) || 10000
     },
-    
+
     // Configuraciones específicas de MySQL
     dialectOptions: {
       charset: 'utf8mb4',
-      collate: 'utf8mb4_unicode_ci',
-      useUTC: false, // Para manejo de fechas locales
+      // Nota: "collate" y "useUTC" se configuran a nivel de base de datos/
+      // tablas y zona horaria. mysql2 3.x ignora estas opciones en la conexión
+      // y muestra warnings, por eso se omiten aquí.
       dateStrings: true,
       typeCast: true
     },
-    
+
     // Timezone
     timezone: process.env.DB_TIMEZONE || '-05:00', // UTC-5 para Colombia
-    
+
     // Configuraciones adicionales
     define: {
       timestamps: true,
@@ -40,15 +41,15 @@ const sequelize = new Sequelize(
       charset: 'utf8mb4',
       collate: 'utf8mb4_unicode_ci'
     },
-    
+
     // Configuraciones de rendimiento
     benchmark: process.env.NODE_ENV === 'development',
-    
+
     // Configuraciones de seguridad
     ssl: process.env.DB_SSL === 'true' ? {
       rejectUnauthorized: false
     } : false,
-    
+
     // Configuraciones de retry
     retry: {
       max: 3
@@ -88,12 +89,12 @@ const syncDatabase = async (options = {}) => {
       alter: false, // No alterar tablas existentes
       logging: process.env.NODE_ENV === 'development'
     };
-    
+
     const syncOptions = { ...defaultOptions, ...options };
-    
+
     await sequelize.sync(syncOptions);
     console.log('✅ Base de datos sincronizada correctamente');
-    
+
     return true;
   } catch (error) {
     console.error('❌ Error al sincronizar base de datos:', error);
@@ -104,7 +105,7 @@ const syncDatabase = async (options = {}) => {
 // Función para crear la base de datos si no existe
 const createDatabaseIfNotExists = async () => {
   const mysql = require('mysql2/promise');
-  
+
   try {
     const connection = await mysql.createConnection({
       host: process.env.DB_HOST || 'localhost',
@@ -112,12 +113,12 @@ const createDatabaseIfNotExists = async () => {
       user: process.env.DB_USER || 'root',
       password: process.env.DB_PASSWORD || ''
     });
-    
+
     const databaseName = process.env.DB_NAME || 'cacao_monitoring';
-    
+
     await connection.execute(`CREATE DATABASE IF NOT EXISTS \`${databaseName}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`);
     console.log(`✅ Base de datos '${databaseName}' verificada/creada`);
-    
+
     await connection.end();
     return true;
   } catch (error) {
@@ -131,13 +132,13 @@ const initializeDatabase = async () => {
   try {
     // Crear base de datos si no existe
     await createDatabaseIfNotExists();
-    
+
     // Verificar conexión
     await testConnection();
-    
+
     // Sincronizar modelos
     await syncDatabase();
-    
+
     console.log('🎉 Base de datos inicializada completamente');
     return true;
   } catch (error) {
