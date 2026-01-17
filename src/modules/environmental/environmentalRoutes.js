@@ -52,6 +52,21 @@ const validateSensorData = [
 // ============ RUTAS PÚBLICAS (para dispositivos IoT) ============
 
 /**
+ * @route GET /api/environmental/sensor/test
+ * @desc Endpoint de prueba para verificar conectividad del ESP32
+ * @access Public (sin autenticación)
+ */
+router.get('/sensor/test', (req, res) => {
+  console.log('🤖 [ESP32] Test endpoint llamado');
+  res.status(200).json({
+    success: true,
+    message: 'Conectividad OK - ESP32 puede comunicarse con el servidor',
+    timestamp: new Date().toISOString(),
+    server: 'Backend Cacao Monitoring'
+  });
+});
+
+/**
  * @route POST /api/environmental/sensor/data
  * @desc Endpoint público para que dispositivos IoT (ESP32) envíen datos de sensores
  * @access Public (sin autenticación)

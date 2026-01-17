@@ -50,6 +50,10 @@ const limiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  // Excluir rutas de ESP32/IoT del rate limiting
+  skip: (req) => {
+    return req.path.includes('/sensor/data');
+  }
 });
 
 // Solo aplicar rate limiting en producción
@@ -79,8 +83,11 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Permitir requests sin origin (como desde Postman o ESP32)
-    if (!origin) return callback(null, true);
+    // Permitir requests sin origin (como desde Postman, ESP32, o dispositivos IoT)
+    if (!origin) {
+      console.log('✅ Solicitud sin Origin permitida (ESP32/IoT)');
+      return callback(null, true);
+    }
     
     if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
       callback(null, true);
@@ -105,7 +112,16 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Logging de requests
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url} - IP: ${req.ip}`);
+  const logMsg = `${new Date().toISOString()} - ${req.method} ${req.url} - IP: ${req.ip}`;
+  console.log(logMsg);
+  
+  // Log especial para rutas de sensores ESP32
+  if (req.url.includes('/sensor/data')) {
+    console.log('🤖 [ESP32] Solicitud de sensor detectada');
+    console.log('   Headers:', JSON.stringify(req.headers, null, 2));
+    console.log('   Body:', JSON.stringify(req.body, null, 2));
+  }
+  
   next();
 });
 

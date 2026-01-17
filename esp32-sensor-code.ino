@@ -24,7 +24,7 @@ const char* password = "AME199914";           // Tu contraseña WiFi
 // Para obtener tu IP:
 // - Windows: ipconfig (buscar "Dirección IPv4")
 // - Linux/Mac: ifconfig o ip addr
-const char* serverHost = "192.168.100.88";  // ⚠️ CAMBIAR POR TU IP
+const char* serverHost = "72.61.73.160";  // ⚠️ CAMBIAR POR TU IP
 const int serverPort = 3000;
 const char* serverPath = "/api/environmental/sensor/data";
 const char* deviceId = "ESP32_AIR_001";  // ID único de este dispositivo

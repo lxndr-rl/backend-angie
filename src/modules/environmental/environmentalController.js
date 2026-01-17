@@ -8,6 +8,10 @@ class EnvironmentalController {
    */
   async registerSensorData(req, res) {
     try {
+      console.log('🤖 [ESP32] registerSensorData - Inicio del procesamiento');
+      console.log('🤖 [ESP32] Body recibido:', JSON.stringify(req.body, null, 2));
+      console.log('🤖 [ESP32] Headers:', JSON.stringify(req.headers, null, 2));
+      
       const {
         deviceId,
         temperature,
@@ -26,10 +30,12 @@ class EnvironmentalController {
 
       // Validaciones básicas
       if (!deviceId) {
+        console.error('🤖 [ESP32] Error: deviceId no proporcionado');
         return errorResponse(res, 'El deviceId es requerido', 400);
       }
 
       if (temperature === undefined || humidity === undefined) {
+        console.error('🤖 [ESP32] Error: temperatura o humedad no proporcionados');
         return errorResponse(res, 'Temperatura y humedad son requeridos', 400);
       }
 
@@ -59,13 +65,15 @@ class EnvironmentalController {
         longitude
       });
 
+      console.log('🤖 [ESP32] ✅ Datos registrados exitosamente');
       return createdResponse(
         res,
         result,
         'Datos de sensores registrados exitosamente'
       );
     } catch (error) {
-      console.error('Error en EnvironmentalController.registerSensorData:', error);
+      console.error('🤖 [ESP32] ❌ Error en EnvironmentalController.registerSensorData:', error);
+      console.error('🤖 [ESP32] Stack:', error.stack);
       return errorResponse(res, error.message || 'Error al registrar datos de sensores', 500);
     }
   }
